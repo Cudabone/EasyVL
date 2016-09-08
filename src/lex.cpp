@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
             }
 
 			// NUMBER
+			/*
 			if ((line[i] >=0) && (line[i] <=9))
 			{
 				size_t num_begin = i;
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 				}
 				output_file << "NUMBER "
 					<< line.substr(num_begin,i-num_begin) << std::endl;
-			}
+			}*/
             else
             {
                 std::cerr << "LINE " << line_no
