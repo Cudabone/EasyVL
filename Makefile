@@ -7,4 +7,4 @@ alldebug: $(FILES)
 	g++ src/*.cpp -Wall -g -lm -o myevl
  
 clean: 
-	rm myevl
+	rm myevl ./mytests/*.tokens
