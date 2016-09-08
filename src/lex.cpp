@@ -83,12 +83,12 @@ int main(int argc, char *argv[])
             }
 
 			// NUMBER
-			if ((line[i] >=0) && (line[i] <=9))
+			if ((line[i] >='0') && (line[i] <='9'))
 			{
 				size_t num_begin = i;
 				for(++i; i < line.size(); ++i)
 				{
-					if(!((line[i] >=0) && (line[i] <=9)))
+					if(!((line[i] >='0') && (line[i] <='9')))
 					{
 						break;
 					}
