@@ -80,22 +80,23 @@ int main(int argc, char *argv[])
                 }
                 output_file << "NAME "
                     << line.substr(name_begin, i-name_begin) << std::endl;
+		continue; //skip the rest of the iteration
             }
-
-			// NUMBER
-			if ((line[i] >='0') && (line[i] <='9'))
+		// NUMBER
+		if ((line[i] >='0') && (line[i] <='9'))
+		{
+			std::cout << "Number val: "  << line[i] << std::endl;
+			size_t num_begin = i;
+			for(++i; i < line.size(); ++i)
 			{
-				size_t num_begin = i;
-				for(++i; i < line.size(); ++i)
+				if(!((line[i] >='0') && (line[i] <='9')))
 				{
-					if(!((line[i] >='0') && (line[i] <='9')))
-					{
-						break;
-					}
+					break;
 				}
-				output_file << "NUMBER "
-					<< line.substr(num_begin,i-num_begin) << std::endl;
 			}
+			output_file << "NUMBER "
+				<< line.substr(num_begin,i-num_begin) << std::endl;
+		} 
             else
             {
                 std::cerr << "LINE " << line_no
