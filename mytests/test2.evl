@@ -1,1 +1,15 @@
-module
+module name_test4 (s, co, a, b, ci); // Its an adder!
+
+   output s, co;
+   input  a, b, ci;
+   
+   wire   o0, o1, o2;
+   
+   xor(s, a, b, ci);
+   
+   or(o0, a, b);
+   or(o1, b, ci);
+   or(o2, ci, a);
+   and(co, o0, o1, o2);
+   
+endmodule 

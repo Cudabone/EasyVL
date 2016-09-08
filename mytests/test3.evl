@@ -1,0 +1,8 @@
+module nametest2(_a1$,_a$2,out);
+
+	input _a1$,_a$2;
+	output out;
+
+	and(out, _a1$,_a$2); //Comment, ignore spaces
+
+endmodule
