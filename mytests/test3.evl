@@ -1,4 +1,4 @@
-module nametest2(_a1$,_a$2,out);
+module nametest3(_a1$,_a$2,out);
 
 	input _a1$,_a$2;
 	output out;

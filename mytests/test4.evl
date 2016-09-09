@@ -1,12 +1,6 @@
-module numtest(_in,out);
-
-	input _in [3:0];
-	wire s0,s1,s3;
+module nametest4(_in,out);
+	input _in;
 	output out;
-
-	and(s0, _in[0],_in[1]); //Comment, ignore spaces
-	and(s1, _in[2], _in[3]);
-	and(s3,s0,s1);
-	not(out,s3);
-
+	not (out,_in);
+	// Comment
 endmodule
