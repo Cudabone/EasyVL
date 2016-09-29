@@ -27,7 +27,7 @@ struct evl_wire {
 	std::string name;
 	int width;
 }; //struct evl_wire
-
+typedef std::vector<evl_wire> evl_wires;
 
 bool move_tokens_to_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
 void display_statements(std::ostream &out,const evl_statements &statements);
@@ -56,13 +56,15 @@ int main(int argc, char *argv[])
 	evl_tokens tokens;
 	if (!extract_tokens_from_file(evl_file, tokens))
 		return -1;
-	display_tokens(std::cout,tokens);
+	//display_tokens(std::cout,tokens);
 	if (!store_tokens_to_file(evl_file+".tokens", tokens))
 		return -1;
 	evl_statements statements;
 	if(!group_tokens_into_statements(statements,tokens))
 		return -1;
-	display_statements(std::cout,statements);
+	if(!store_statements_to_file(evl_file+".syntax",statements))
+		return -1;
+	//display_statements(std::cout,statements);
 
 	return 0;
 }
