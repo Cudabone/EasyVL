@@ -1,10 +1,10 @@
-FILES = ./src/lex.cpp 
+FILES = ./src/lexRefac.cpp 
 
 all: $(FILES) 
-	g++ src/*.cpp -Wall -O2 -lm -o myevl
+	g++ $(FILES) -Wall -O2 -lm -o myevl
 
 debug: $(FILES) 
-	g++ src/*.cpp -Wall -g -lm -o myevl
+	g++ $(FILES) -Wall -g -lm -o myevl
 tests: $(FILES)
 	@ ./myevl ./mytests/test.evl
 	@ ./myevl ./mytests/test2.evl
