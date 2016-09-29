@@ -1,4 +1,4 @@
-FILES = ./src/lex.cpp 
+FILES = ./src/lexRefac.cpp 
 
 all: $(FILES) 
 	g++ $(FILES) -Wall -O2 -lm -o myevl

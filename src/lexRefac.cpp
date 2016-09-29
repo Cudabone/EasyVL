@@ -66,7 +66,7 @@ bool store_tokens_to_file(std::string file_name,const std::vector<evl_token> &to
 }
 bool extract_tokens_from_file(std::string evl_file, std::vector<evl_token> &tokens)
 {
-	std::ifstream input_file(evl_file);
+	std::ifstream input_file(evl_file.c_str());
     if (!input_file)
     {
         std::cerr << "I can't read " << evl_file << std::endl;
