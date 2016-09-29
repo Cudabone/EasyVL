@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <list>
 
 struct evl_token {
 	enum token_type {NAME, NUMBER, SINGLE};
@@ -11,15 +12,36 @@ struct evl_token {
 
 	int line_no;
 }; // struct evl_token
+typedef std::list<evl_token> evl_tokens;
 
-void display_tokens(std::ostream &out, const std::vector<evl_token> &tokens);
-bool store_tokens_to_file(std::string file_name,const std::vector<evl_token> &tokens);
-bool extract_tokens_from_file(std::string evl_file, std::vector<evl_token> &tokens);
-bool extract_tokens_from_line(std::string line, int line_no, std::vector<evl_token> &tokens); 
+struct evl_statement {
+	enum statement_type {MODULE,WIRE,COMPONENT,ENDMODULE};
+
+	statement_type type;
+	evl_tokens tokens;
+}; // struct evl_statement
+
+typedef std::list<evl_statement> evl_statements;
+
+struct evl_wire {
+	std::string name;
+	int width;
+}; //struct evl_wire
+
+
+bool move_tokens_to_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
+void display_statements(std::ostream &out,const evl_statements &statements);
+bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens);
+void display_tokens(std::ostream &out, const evl_tokens &tokens);
+bool store_tokens_to_file(std::string file_name,const evl_tokens &tokens);
+bool extract_tokens_from_file(std::string evl_file, evl_tokens &tokens);
+bool extract_tokens_from_line(std::string line, int line_no, evl_tokens &tokens); 
 bool is_space(char ch);
 bool is_alpha(char ch);
 bool is_single(char ch);
 bool is_number(char ch);
+bool token_is_semicolon(const evl_token &token);
+bool store_statements_to_file(std::string file_name, const evl_statements &statements);
 
 int main(int argc, char *argv[])
 {
@@ -31,29 +53,123 @@ int main(int argc, char *argv[])
     }
 	std::string evl_file = argv[1];
 
-	std::vector<evl_token> tokens;
+	evl_tokens tokens;
 	if (!extract_tokens_from_file(evl_file, tokens))
 		return -1;
 	display_tokens(std::cout,tokens);
 	if (!store_tokens_to_file(evl_file+".tokens", tokens))
 		return -1;
+	evl_statements statements;
+	if(!group_tokens_into_statements(statements,tokens))
+		return -1;
+	display_statements(std::cout,statements);
+
 	return 0;
 }
-void display_tokens(std::ostream &out,const std::vector<evl_token> &tokens) 
+bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 {
-	for (size_t i = 0; i < tokens.size(); ++i)
+	while(!tokens.empty())
 	{
-		if (tokens[i].type == evl_token::SINGLE) 
-			out << "SINGLE " << tokens[i].str << std::endl;
+		evl_token token = tokens.front();
+		if(token.type != evl_token::NAME)
+		{
+			std::cerr << "Need a NAME token but found '" << token.str << "' on line "
+				<< token.line_no << std::endl;
+			return false;
+		}
+		if(token.str == "module") //MODULE statement
+		{
+			evl_statement module;
+			module.type = evl_statement::MODULE;
+
+			if(!move_tokens_to_statement(module.tokens,tokens))
+				return false;
+			
+			statements.push_back(module);
+
+		}
+		else if(token.str == "endmodule") //ENDMODULE statement
+		{
+			evl_statement endmodule;
+			endmodule.type = evl_statement::ENDMODULE;
+
+			if(!move_tokens_to_statement(endmodule.tokens,tokens))
+				return false;
+
+			statements.push_back(endmodule);
+		}
+		else if(token.str == "wire") // WIRE statement
+		{
+			
+		}
+		else // COMPONENT statement 
+		{
 		
-		else if (tokens[i].type == evl_token::NAME) 
-			out << "NAME " << tokens[i].str << std::endl;
+		}
+	}
+	return true;
+}
+bool move_tokens_to_statement(evl_tokens &statement_tokens,evl_tokens &tokens)
+{
+	evl_tokens::iterator next_sc = std::find_if(tokens.begin(), tokens.end(), token_is_semicolon);
+	if(next_sc == tokens.end())
+	{
+		std::cerr << "Look for ';' but reached the end of file" << std::endl;
+		return false;
+	}
+
+	// move tokens within [tokens.begin(), next_sc] to statement_tokens
+	evl_tokens::iterator after_sc = next_sc; 
+	++after_sc;
+	statement_tokens.splice(statement_tokens.begin(),tokens,tokens.begin(),after_sc);
+
+	return true;
+}
+bool token_is_semicolon(const evl_token &token)
+{
+	return token.str == ";";
+}
+void display_tokens(std::ostream &out,const evl_tokens &tokens) 
+{
+	for (evl_tokens::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+		{
+		if (iter->type == evl_token::SINGLE) 
+			out << "SINGLE " << iter->str << std::endl;
+		
+		else if (iter->type == evl_token::NAME) 
+			out << "NAME " << iter->str << std::endl;
 		
 		else  // must be NUMBER
-			out << "NUMBER " << tokens[i].str << std::endl;
+			out << "NUMBER " << iter->str << std::endl;
 	}
 }
-bool store_tokens_to_file(std::string file_name,const std::vector<evl_token> &tokens)
+void display_statements(std::ostream &out,const evl_statements &statements)
+{
+	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
+	{
+		if (iter->type == evl_statement::MODULE) 
+			out << "module top" << std::endl;
+		
+		else if (iter->type == evl_statement::ENDMODULE);
+
+		else if (iter->type == evl_statement::WIRE);	
+
+		else; // must be COMPONENT
+	}
+
+}
+bool store_statements_to_file(std::string file_name, const evl_statements &statements)
+{
+	std::ofstream output_file(file_name.c_str());
+    if (!output_file)
+    {
+        std::cerr << "I can't write " << file_name << std::endl;
+        return -1;
+    }
+	display_statements(output_file,statements);
+	return true;
+}
+bool store_tokens_to_file(std::string file_name,const evl_tokens &tokens)
 {
 	std::ofstream output_file(file_name.c_str());
     if (!output_file)
@@ -64,7 +180,7 @@ bool store_tokens_to_file(std::string file_name,const std::vector<evl_token> &to
 	display_tokens(output_file,tokens);
 	return true;
 }
-bool extract_tokens_from_file(std::string evl_file, std::vector<evl_token> &tokens)
+bool extract_tokens_from_file(std::string evl_file, evl_tokens &tokens)
 {
 	std::ifstream input_file(evl_file.c_str());
     if (!input_file)
@@ -81,7 +197,7 @@ bool extract_tokens_from_file(std::string evl_file, std::vector<evl_token> &toke
 	}
 	return true;
 }
-bool extract_tokens_from_line(std::string line, int line_no, std::vector<evl_token> &tokens)
+bool extract_tokens_from_line(std::string line, int line_no, evl_tokens &tokens)
 {
 	for (size_t i = 0; i < line.size();)
 	{
