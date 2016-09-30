@@ -1,4 +1,4 @@
-FILES = ./src/lexRefac.cpp 
+FILES = ./src/syn.cpp 
 
 all: $(FILES) 
 	g++ $(FILES) -Wall -O2 -lm -o myevl
@@ -12,7 +12,6 @@ tests: $(FILES)
 	@ ./myevl ./mytests/test3.evl
 	@ ./myevl ./mytests/test4.evl
 	@ ./myevl ./mytests/test5.evl
-	@ ./myevl ./mytests/test6.evl
  
 clean: 
 	rm myevl ./mytests/*.tokens ./mytests/*.syntax
