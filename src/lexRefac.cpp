@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 		return -1;
 	if(!store_statements_to_file(evl_file+".syntax",statements))
 		return -1;
-	//display_statements(std::cout,statements);
+	display_statements(std::cout,statements);
 
 	return 0;
 }
