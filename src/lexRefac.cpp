@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 		return -1;
 	if(!store_statements_to_file(evl_file+".syntax",statements))
 		return -1;
-	//display_statements(std::cout,statements);
+	display_statements(std::cout,statements);
 
 	return 0;
 }
@@ -95,18 +95,25 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 			evl_statement endmodule;
 			endmodule.type = evl_statement::ENDMODULE;
 
+			/*
 			if(!move_tokens_to_statement(endmodule.tokens,tokens))
 				return false;
+				*/
 
 			statements.push_back(endmodule);
+			tokens.pop_front();
 		}
+		/*
 		else if(token.str == "wire") // WIRE statement
 		{
-			
+				
 		}
+		*/
 		else // COMPONENT statement 
 		{
-		
+			evl_statement ignore;
+			if(!move_tokens_to_statement(ignore.tokens,tokens))
+				return false;
 		}
 	}
 	return true;
@@ -124,6 +131,9 @@ bool move_tokens_to_statement(evl_tokens &statement_tokens,evl_tokens &tokens)
 	evl_tokens::iterator after_sc = next_sc; 
 	++after_sc;
 	statement_tokens.splice(statement_tokens.begin(),tokens,tokens.begin(),after_sc);
+
+	for(evl_tokens::iterator it = tokens.begin(); it != after_sc; ++it)
+		tokens.pop_front();
 
 	return true;
 }
