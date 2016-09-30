@@ -1,8 +1,2 @@
-module nametest2(a1,a2,out);
-
-	input a1,a2;
-	output out;
-
-	and(out,a1,a2); //Comment, ignore spaces
-
+module _test2;
 endmodule
