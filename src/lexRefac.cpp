@@ -160,7 +160,14 @@ void display_statements(std::ostream &out,const evl_statements &statements)
 	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
 	{
 		if (iter->type == evl_statement::MODULE) 
-			out << "module top" << std::endl;
+		{
+			evl_tokens tokens = iter->tokens;
+			evl_tokens::iterator eit = tokens.begin();
+			out << eit->str + " ";
+			eit++;
+			out << eit->str << std::endl;
+		}
+			
 		
 		else if (iter->type == evl_statement::ENDMODULE);
 

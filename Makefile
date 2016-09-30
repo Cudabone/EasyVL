@@ -5,6 +5,7 @@ all: $(FILES)
 
 debug: $(FILES) 
 	g++ $(FILES) -Wall -g -lm -o myevl
+
 tests: $(FILES)
 	@ ./myevl ./mytests/test.evl
 	@ ./myevl ./mytests/test2.evl
@@ -14,4 +15,4 @@ tests: $(FILES)
 	@ ./myevl ./mytests/test6.evl
  
 clean: 
-	rm myevl ./mytests/*.tokens
+	rm myevl ./mytests/*.tokens ./mytests/*.syntax
