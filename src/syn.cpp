@@ -29,7 +29,7 @@ struct evl_wire {
 }; //struct evl_wire
 typedef std::vector<evl_wire> evl_wires;
 
-bool move_tokens_to_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
+bool move_tokens_into_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
 void display_statements(std::ostream &out,const evl_statements &statements);
 bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens);
 void display_tokens(std::ostream &out, const evl_tokens &tokens);
@@ -84,11 +84,10 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 			evl_statement module;
 			module.type = evl_statement::MODULE;
 
-			if(!move_tokens_to_statement(module.tokens,tokens))
+			if(!move_tokens_into_statement(module.tokens,tokens))
 				return false;
 			
 			statements.push_back(module);
-
 		}
 		else if(token.str == "endmodule") //ENDMODULE statement
 		{
@@ -96,7 +95,7 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 			endmodule.type = evl_statement::ENDMODULE;
 
 			/*
-			if(!move_tokens_to_statement(endmodule.tokens,tokens))
+			if(!move_tokens_into_statement(endmodule.tokens,tokens))
 				return false;
 				*/
 
@@ -112,13 +111,13 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 		else // COMPONENT statement 
 		{
 			evl_statement ignore;
-			if(!move_tokens_to_statement(ignore.tokens,tokens))
+			if(!move_tokens_into_statement(ignore.tokens,tokens))
 				return false;
 		}
 	}
 	return true;
 }
-bool move_tokens_to_statement(evl_tokens &statement_tokens,evl_tokens &tokens)
+bool move_tokens_into_statement(evl_tokens &statement_tokens,evl_tokens &tokens)
 {
 	evl_tokens::iterator next_sc = std::find_if(tokens.begin(), tokens.end(), token_is_semicolon);
 	if(next_sc == tokens.end())
@@ -131,9 +130,6 @@ bool move_tokens_to_statement(evl_tokens &statement_tokens,evl_tokens &tokens)
 	evl_tokens::iterator after_sc = next_sc; 
 	++after_sc;
 	statement_tokens.splice(statement_tokens.begin(),tokens,tokens.begin(),after_sc);
-
-	for(evl_tokens::iterator it = tokens.begin(); it != after_sc; ++it)
-		tokens.pop_front();
 
 	return true;
 }
@@ -159,13 +155,17 @@ void display_statements(std::ostream &out,const evl_statements &statements)
 {
 	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
 	{
+		evl_tokens tokens = iter->tokens;
+		size_t size = tokens.size();
 		if (iter->type == evl_statement::MODULE) 
 		{
-			evl_tokens tokens = iter->tokens;
-			evl_tokens::iterator eit = tokens.begin();
-			out << eit->str + " ";
-			eit++;
-			out << eit->str << std::endl;
+			if(size >= 2)
+			{
+				evl_tokens::iterator eit = tokens.begin();
+				eit++;
+				//Print out module and name of module
+				out << "module " << eit->str << std::endl;
+			}
 		}
 			
 		

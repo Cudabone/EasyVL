@@ -7,7 +7,7 @@ debug: $(FILES)
 	g++ $(FILES) -Wall -g -lm -o myevl
 
 tests: $(FILES)
-	@ ./myevl ./mytests/test.evl
+	@ ./myevl ./mytests/test1.evl
 	@ ./myevl ./mytests/test2.evl
 	@ ./myevl ./mytests/test3.evl
 	@ ./myevl ./mytests/test4.evl
