@@ -14,4 +14,5 @@ tests: $(FILES)
 	@ ./myevl ./mytests/test5.evl
  
 clean: 
-	rm myevl ./mytests/*.tokens ./mytests/*.syntax
+	@rm -f ./myevl ./mytests/*.tokens ./mytests/*.syntax 
+	@rm -rf ./myevl.dSYM

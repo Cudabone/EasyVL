@@ -14,21 +14,24 @@ struct evl_token {
 }; // struct evl_token
 typedef std::list<evl_token> evl_tokens;
 
-struct evl_statement {
-	enum statement_type {MODULE,WIRE,COMPONENT,ENDMODULE};
-
-	statement_type type;
-	evl_tokens tokens;
-}; // struct evl_statement
-
-typedef std::list<evl_statement> evl_statements;
-
 struct evl_wire {
 	std::string name;
 	int width;
 }; //struct evl_wire
 typedef std::vector<evl_wire> evl_wires;
 
+struct evl_statement {
+	enum statement_type {MODULE,WIRE,COMPONENT,ENDMODULE};
+
+	statement_type type;
+	evl_tokens tokens;
+	evl_wires wires;
+}; // struct evl_statement
+
+typedef std::list<evl_statement> evl_statements;
+
+
+bool process_wire_statement(evl_wires &wires, evl_statement &s);
 bool move_tokens_into_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
 void display_statements(std::ostream &out,const evl_statements &statements);
 bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens);
@@ -54,6 +57,7 @@ int main(int argc, char *argv[])
 	std::string evl_file = argv[1];
 
 	evl_tokens tokens;
+	evl_wires wires;
 	if (!extract_tokens_from_file(evl_file, tokens))
 		return -1;
 	//display_tokens(std::cout,tokens);
@@ -94,26 +98,169 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 			evl_statement endmodule;
 			endmodule.type = evl_statement::ENDMODULE;
 
-			/*
-			if(!move_tokens_into_statement(endmodule.tokens,tokens))
-				return false;
-				*/
-
 			statements.push_back(endmodule);
 			tokens.pop_front();
 		}
-		/*
 		else if(token.str == "wire") // WIRE statement
 		{
-				
-		}
-		*/
-		else // COMPONENT statement 
-		{
-			evl_statement ignore;
-			if(!move_tokens_into_statement(ignore.tokens,tokens))
+			evl_statement wire;
+			wire.type = evl_statement::WIRE;
+			if(!move_tokens_into_statement(wire.tokens,tokens))		
+				return false;
+			if(!process_wire_statement(wire.wires,wire))
 				return false;
 		}
+		else // COMPONENT statement 
+		{
+			evl_statement component;
+			component.type = evl_statement::COMPONENT;
+			if(!move_tokens_into_statement(component.tokens,tokens))
+				return false;
+		}
+	}
+	return true;
+}
+bool process_wire_statement(evl_wires &wires, evl_statement &s)
+{
+	enum state_type {INIT,WIRE,DONE,WIRES,WIRE_NAME,BUS,BUS_MSB,BUS_COLON,BUS_LSB,BUS_DONE};
+
+	state_type state = INIT;
+	int bus_width;
+	for(; !s.tokens.empty() && (state != DONE); s.tokens.pop_front())
+	{
+		evl_token t = s.tokens.front();
+		if(state == INIT)
+		{
+			if(t.str == "wire")
+				state = WIRE;
+			else
+			{
+				std::cerr << "Need 'wire' but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+		}
+		else if(state == WIRE)
+		{
+			if(t.type == evl_token::NAME) 
+			{
+				bus_width = 1;
+				evl_wire wire;
+				wire.name = t.str;
+				wire.width = bus_width;
+				wires.push_back(wire);
+				state = WIRE_NAME;
+			}
+			else if(t.type == evl_token::SINGLE)
+			{
+				if(t.str == "[")	
+					state = BUS;
+				else
+				{
+					std::cerr << "Need [ but found '" << t.str << "' on line " << t.line_no << std::endl;
+					return false;
+				}
+			}
+			else
+			{
+				std::cerr << "Need NAME but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+
+		}
+		else if(state == WIRES)
+		{
+			if(t.type == evl_token::NAME)
+			{
+				evl_wire wire;
+				wire.name = t.str;
+				wire.width = bus_width;
+				wires.push_back(wire);
+				state = WIRE_NAME;
+			}
+			else
+			{
+				std::cerr << "Need NAME but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+
+		}
+		else if(state == WIRE_NAME)
+		{
+			if(t.str == ",")
+				state = WIRES;
+			else if(t.str == ";")
+				state = DONE;
+			else
+			{
+				std::cerr << "Need NAME but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+
+		}
+		else if(state == BUS)
+		{
+			if(t.type == evl_token::NUMBER)
+			{
+				bus_width = atoi(t.str.c_str())+1;
+				state = BUS_MSB;
+			}
+			else
+			{
+				std::cerr << "Need NUMBER but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+		}
+		else if(state == BUS_MSB)
+		{
+			if(t.str == ":")
+				state = BUS_COLON;
+			else
+			{
+				std::cerr << "Need : but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+		}
+		else if(state == BUS_COLON)
+		{
+			if(t.str == "0")
+				state = BUS_LSB;
+			else
+			{
+				std::cerr << "Need 0 but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+		}
+		else if(state == BUS_LSB)
+		{
+			if(t.str == "]")
+				state = BUS_DONE;
+			else
+			{
+				std::cerr << "Need ] but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+		}
+		else if(state == BUS_DONE)
+		{
+			if(t.type == evl_token::NAME)
+			{
+				evl_wire wire;
+				wire.name = t.str;
+				wire.width = bus_width;
+				wires.push_back(wire);
+				state = WIRE_NAME;
+			}
+			else
+			{
+				std::cerr << "Need NAME but found '" << t.str << "' on line " << t.line_no << std::endl;
+				return false;
+			}
+		}
+	}
+	if (!s.tokens.empty() || (state != DONE))
+	{
+		std::cerr << "Something went wrong with the wire statement" << std::endl;
+		return false;
 	}
 	return true;
 }
@@ -157,7 +304,7 @@ void display_statements(std::ostream &out,const evl_statements &statements)
 	{
 		evl_tokens tokens = iter->tokens;
 		size_t size = tokens.size();
-		if (iter->type == evl_statement::MODULE) 
+		if(iter->type == evl_statement::MODULE) 
 		{
 			if(size >= 2)
 			{
@@ -171,7 +318,17 @@ void display_statements(std::ostream &out,const evl_statements &statements)
 		
 		else if (iter->type == evl_statement::ENDMODULE);
 
-		else if (iter->type == evl_statement::WIRE);	
+		else if (iter->type == evl_statement::WIRE)
+		{
+			evl_wires wires = iter->wires;
+			size_t wiresize = wires.size();
+			out << "wires " << wiresize << std::endl;
+			for(evl_wires::const_iterator witer = wires.begin(); witer != wires.end(); ++witer)
+			{
+				evl_wire wire = *witer;
+				out << "\twire " << wire.name << " " << wire.width << std::endl;
+			}
+		}
 
 		else; // must be COMPONENT
 	}
