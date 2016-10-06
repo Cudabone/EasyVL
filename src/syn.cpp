@@ -548,7 +548,10 @@ void display_statements(std::ostream &out,const evl_statements &statements,const
 		if(iter->type == evl_statement::COMPONENT)
 		{
 			evl_component component = iter->component;
-			out << "\tcomponent " << component.type + " " << component.name + " "<< component.numpins << std::endl;
+			if(component.name != "")
+				out << "\tcomponent " << component.type + " " << component.name + " "<< component.numpins << std::endl;
+			else
+				out << "\tcomponent " << component.type + " "<< component.numpins << std::endl;
 			evl_pins pins = iter->component.pins;
 			for(evl_pins::const_iterator piter = pins.begin(); piter != pins.end(); ++piter)
 			{
