@@ -20,17 +20,33 @@ struct evl_wire {
 }; //struct evl_wire
 typedef std::vector<evl_wire> evl_wires;
 
+struct evl_pin {
+	std::string name;
+	int bus_msb;
+	int bus_lsb;
+}; //struct evl_pin
+typedef std::vector<evl_pin> evl_pins;
+
+struct evl_component {
+	std::string type;
+	std::string name;
+	int numpins;
+	evl_pins pins;
+}; //struct evl_component
+typedef std::list<evl_component> evl_components;
+
 struct evl_statement {
 	enum statement_type {MODULE,WIRE,COMPONENT,ENDMODULE};
 
 	statement_type type;
+	evl_component component;
 	evl_tokens tokens;
-	evl_wires wires;
 }; // struct evl_statement
-
 typedef std::list<evl_statement> evl_statements;
 
-
+/* Function Prototypes */
+void pparse_error(std::string expected,std::string found,int line_no);
+bool process_component_statement(evl_statement &s);
 bool process_wire_statement(evl_wires &wires, evl_statement &s);
 bool move_tokens_into_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
 void display_statements(std::ostream &out,const evl_statements &statements,const evl_wires &wires);
@@ -117,7 +133,188 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens,
 			component.type = evl_statement::COMPONENT;
 			if(!move_tokens_into_statement(component.tokens,tokens))
 				return false;
+			if(!process_component_statement(component))
+				return false;
+			statements.push_back(component);
 		}
+	}
+	return true;
+}
+void pparse_error(std::string expected,std::string found,int line_no)
+{
+	std::cerr << "Need '" << expected << "' but found '" << found << "' on line " << line_no << std::endl; 
+}
+bool process_component_statement(evl_statement &s)
+{
+	enum state_type {INIT,TYPE,NAME,PINS,PIN_NAME,PINS_DONE,BUS,BUS_MSB,BUS_COLON,BUS_LSB,BUS_DONE,DONE};
+	state_type state = INIT;
+	evl_pin pin;
+	for(; !s.tokens.empty() && (state != DONE); s.tokens.pop_front())
+	{
+		evl_token t = s.tokens.front();
+		if(state == INIT)
+		{
+			if(t.type == evl_token::NAME)
+			{
+				s.component.type = t.str;
+				s.component.name = "";
+				state = TYPE;
+			}
+			else
+			{
+				pparse_error("NAME",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == TYPE)
+		{
+			if(t.type == evl_token::NAME)
+			{
+				s.component.name = t.str;
+				s.component.numpins = 0;
+				state = NAME;
+			}
+			else if(t.str == "(")
+			{
+				state = PINS;
+			}
+			else
+			{
+				pparse_error("NAME or (",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == NAME)
+		{
+			if(t.str == "(")
+			{
+				state = PINS;
+			}
+			else
+			{
+				pparse_error("(",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == PINS)
+		{
+			if(t.type == evl_token::NAME)
+			{
+				pin.name = t.str;
+				pin.bus_msb = -1;
+				pin.bus_lsb = -1;
+				s.component.numpins++;
+				state = PIN_NAME;
+			}
+			else
+			{
+				pparse_error("NAME",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == PIN_NAME)
+		{
+			if(t.str == "[")
+				state = BUS;
+			else if(t.str == ",")
+			{
+				s.component.pins.push_back(pin);	
+				state = PINS;
+			}
+			else if(t.str == ")")
+			{
+				s.component.pins.push_back(pin);
+				state = PINS_DONE;
+			}
+			else
+			{
+				pparse_error("[ or , or )",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == PINS_DONE)
+		{
+			if(t.str == ";")
+			{
+				state = DONE;
+			}
+			else
+			{
+				pparse_error(";",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == BUS)
+		{
+			if(t.type == evl_token::NUMBER)
+			{
+				pin.bus_msb = atoi(t.str.c_str());
+				state = BUS_MSB;
+			}
+			else
+			{
+				pparse_error("NUMBER",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == BUS_MSB)
+		{
+			if(t.str == ":")
+				state = BUS_COLON;
+			else if(t.str == "]")
+				state = BUS_DONE;
+			else
+			{
+				pparse_error(": or ]",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == BUS_COLON)
+		{
+			if(t.type == evl_token::NUMBER)
+			{
+				pin.bus_lsb = atoi(t.str.c_str());
+				state = BUS_LSB;
+			}
+			else
+			{
+				pparse_error("NUMBER",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == BUS_LSB)
+		{
+			if(t.str == "]")
+				state = BUS_DONE;
+			else
+			{
+				pparse_error("]",t.str,t.line_no);
+				return false;
+			}
+		}
+		else if(state == BUS_DONE)
+		{
+			if(t.str == ",")
+			{ 
+				s.component.pins.push_back(pin);
+				state = PINS; 
+			}
+			else if(t.str == ")")
+			{
+				s.component.pins.push_back(pin);
+				state = PINS_DONE;	
+			}
+			else
+			{
+				pparse_error(", or )",t.str,t.line_no);
+				return false;
+			}
+		}
+	}
+	if (!s.tokens.empty() || (state != DONE))
+	{
+		std::cerr << "Something went wrong with the component statement" << std::endl;
+		return false;
 	}
 	return true;
 }
@@ -301,6 +498,7 @@ void display_tokens(std::ostream &out,const evl_tokens &tokens)
 }
 void display_statements(std::ostream &out,const evl_statements &statements,const evl_wires &wires)
 {
+	int numcomps = 0;
 	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
 	{
 		evl_tokens tokens = iter->tokens;
@@ -315,6 +513,8 @@ void display_statements(std::ostream &out,const evl_statements &statements,const
 				out << "module " << eit->str << std::endl;
 			}
 		}
+		if(iter->type == evl_statement::COMPONENT)
+			numcomps++;
 	}
 			
 		
@@ -333,11 +533,27 @@ void display_statements(std::ostream &out,const evl_statements &statements,const
 
 		else; // must be COMPONENT
 		*/
+	/* wires */
 	int numwires = wires.size();
 	out << "wires " << numwires << std::endl;
 	for(evl_wires::const_iterator witer = wires.begin(); witer != wires.end(); ++witer)
 	{
 		out << "\twire " << witer->name << " " << witer->width << std::endl;
+	}
+
+	/*components*/
+	out << "components " << numcomps << std::endl;
+	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
+	{
+		if(iter->type == evl_statement::COMPONENT)
+		{
+			out << "\tcomponent " << iter->component.name << " " << iter->component.numpins << std::endl;
+			evl_pins pins = iter->component.pins;
+			for(evl_pins::const_iterator piter = pins.begin(); piter != pins.end(); ++piter)
+			{
+				out << "\t\tpin " << piter->name << std::endl;
+			}
+		}
 	}
 
 }
