@@ -149,6 +149,7 @@ bool process_component_statement(evl_statement &s)
 	enum state_type {INIT,TYPE,NAME,PINS,PIN_NAME,PINS_DONE,BUS,BUS_MSB,BUS_COLON,BUS_LSB,BUS_DONE,DONE};
 	state_type state = INIT;
 	evl_pin pin;
+	s.component.numpins = 0;
 	for(; !s.tokens.empty() && (state != DONE); s.tokens.pop_front())
 	{
 		evl_token t = s.tokens.front();
