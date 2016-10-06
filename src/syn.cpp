@@ -554,9 +554,16 @@ void display_statements(std::ostream &out,const evl_statements &statements,const
 			else
 				out << "\tcomponent " << component.type + " "<< component.numpins << std::endl;
 			evl_pins pins = iter->component.pins;
+			evl_pin pin; 
 			for(evl_pins::const_iterator piter = pins.begin(); piter != pins.end(); ++piter)
 			{
-				out << "\t\tpin " << piter->name << std::endl;
+				pin = *piter;
+				if(pin.bus_msb == -1 && pin.bus_lsb == -1)
+					out << "\t\tpin " << piter->name << std::endl;
+				else if(pin.bus_msb != -1 && pin.bus_lsb == -1)
+					out << "\t\tpin " << piter->name << " "<< piter->bus_msb <<std::endl;
+				else if(pin.bus_msb != -1 && pin.bus_lsb != -1)
+					out << "\t\tpin " << piter->name << " " << piter->bus_msb << " " << piter->bus_lsb <<std::endl;
 			}
 		}
 	}
