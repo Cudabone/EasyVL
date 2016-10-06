@@ -33,8 +33,8 @@ typedef std::list<evl_statement> evl_statements;
 
 bool process_wire_statement(evl_wires &wires, evl_statement &s);
 bool move_tokens_into_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
-void display_statements(std::ostream &out,const evl_statements &statements);
-bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens);
+void display_statements(std::ostream &out,const evl_statements &statements,const evl_wires &wires);
+bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens,evl_wires &wires);
 void display_tokens(std::ostream &out, const evl_tokens &tokens);
 bool store_tokens_to_file(std::string file_name,const evl_tokens &tokens);
 bool extract_tokens_from_file(std::string evl_file, evl_tokens &tokens);
@@ -44,7 +44,7 @@ bool is_alpha(char ch);
 bool is_single(char ch);
 bool is_number(char ch);
 bool token_is_semicolon(const evl_token &token);
-bool store_statements_to_file(std::string file_name, const evl_statements &statements);
+bool store_statements_to_file(std::string file_name, const evl_statements &statements,const evl_wires &wires);
 
 int main(int argc, char *argv[])
 {
@@ -64,15 +64,15 @@ int main(int argc, char *argv[])
 	if (!store_tokens_to_file(evl_file+".tokens", tokens))
 		return -1;
 	evl_statements statements;
-	if(!group_tokens_into_statements(statements,tokens))
+	if(!group_tokens_into_statements(statements,tokens,wires))
 		return -1;
-	if(!store_statements_to_file(evl_file+".syntax",statements))
+	if(!store_statements_to_file(evl_file+".syntax",statements,wires))
 		return -1;
-	display_statements(std::cout,statements);
+	display_statements(std::cout,statements,wires);
 
 	return 0;
 }
-bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
+bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens,evl_wires &wires)
 {
 	while(!tokens.empty())
 	{
@@ -107,8 +107,9 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens)
 			wire.type = evl_statement::WIRE;
 			if(!move_tokens_into_statement(wire.tokens,tokens))		
 				return false;
-			if(!process_wire_statement(wire.wires,wire))
+			if(!process_wire_statement(wires,wire))
 				return false;
+			statements.push_back(wire);
 		}
 		else // COMPONENT statement 
 		{
@@ -298,7 +299,7 @@ void display_tokens(std::ostream &out,const evl_tokens &tokens)
 			out << "NUMBER " << iter->str << std::endl;
 	}
 }
-void display_statements(std::ostream &out,const evl_statements &statements)
+void display_statements(std::ostream &out,const evl_statements &statements,const evl_wires &wires)
 {
 	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
 	{
@@ -314,27 +315,33 @@ void display_statements(std::ostream &out,const evl_statements &statements)
 				out << "module " << eit->str << std::endl;
 			}
 		}
+	}
 			
 		
+	/*
 		else if (iter->type == evl_statement::ENDMODULE);
 
+		//Enumerate wires
 		else if (iter->type == evl_statement::WIRE)
 		{
-			evl_wires wires = iter->wires;
-			size_t wiresize = wires.size();
-			out << "wires " << wiresize << std::endl;
-			for(evl_wires::const_iterator witer = wires.begin(); witer != wires.end(); ++witer)
+			if(witer != wires.end())
 			{
-				evl_wire wire = *witer;
-				out << "\twire " << wire.name << " " << wire.width << std::endl;
+				out << "\twire " << witer->name << " " << witer->width << std::endl;
+				++witer;
 			}
 		}
 
 		else; // must be COMPONENT
+		*/
+	int numwires = wires.size();
+	out << "wires " << numwires << std::endl;
+	for(evl_wires::const_iterator witer = wires.begin(); witer != wires.end(); ++witer)
+	{
+		out << "\twire " << witer->name << " " << witer->width << std::endl;
 	}
 
 }
-bool store_statements_to_file(std::string file_name, const evl_statements &statements)
+bool store_statements_to_file(std::string file_name, const evl_statements &statements, const evl_wires &wires)
 {
 	std::ofstream output_file(file_name.c_str());
     if (!output_file)
@@ -342,7 +349,7 @@ bool store_statements_to_file(std::string file_name, const evl_statements &state
         std::cerr << "I can't write " << file_name << std::endl;
         return -1;
     }
-	display_statements(output_file,statements);
+	display_statements(output_file,statements,wires);
 	return true;
 }
 bool store_tokens_to_file(std::string file_name,const evl_tokens &tokens)
