@@ -57,6 +57,7 @@ struct evl_module
 typedef std::list<evl_module> evl_modules;
 
 /* Function Prototypes */
+bool process_module_statement(evl_module &module,const evl_statement &statement);
 void pparse_error(std::string expected,std::string found,int line_no);
 bool process_component_statement(evl_components &components,evl_statement &s);
 bool process_wire_statement(evl_wires &wires, evl_statement &s);
@@ -120,6 +121,8 @@ bool group_tokens_into_statements(evl_modules &modules,evl_tokens &tokens)
 
 			if(!move_tokens_into_statement(modulestatement.tokens,tokens))
 				return false;
+			if(!process_module_statement(module,modulestatement))
+				return false;
 			
 			module.statements.push_back(modulestatement);
 		}
@@ -158,6 +161,23 @@ bool group_tokens_into_statements(evl_modules &modules,evl_tokens &tokens)
 void pparse_error(std::string expected,std::string found,int line_no)
 {
 	std::cerr << "Need '" << expected << "' but found '" << found << "' on line " << line_no << std::endl; 
+}
+bool process_module_statement(evl_module &module, const evl_statement &statement)
+{
+	evl_tokens tokens = statement.tokens;
+	for(evl_tokens::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+	{
+		size_t size = tokens.size();
+		if(size >= 2)
+		{
+			evl_tokens::iterator eit = tokens.begin();
+			eit++;
+			module.name = eit->str;
+		}
+		else if(size == 0)
+			return false;
+	}
+	return true;
 }
 bool process_component_statement(evl_components &components,evl_statement &s)
 {
@@ -519,22 +539,12 @@ void display_statements(std::ostream &out,const evl_modules &modules)
 	evl_module module = modules.front();
 	int numcomps = module.components.size();
 	int numwires = module.wires.size();
-	for (evl_statements::const_iterator iter = module.statements.begin(); iter != module.statements.end(); ++iter)
-	{
-		evl_tokens tokens = iter->tokens;
-		size_t size = tokens.size();
-		if(iter->type == evl_statement::MODULE) 
-		{
-			if(size >= 2)
-			{
-				evl_tokens::iterator eit = tokens.begin();
-				eit++;
-				//Print out module and name of module
-				out << "module " << eit->str << std::endl;
-			}
-		}
-	}
-			
+	
+	if(module.name != "")
+		out << "module " << module.name << std::endl;
+	out << "module" << std::endl;
+
+
 	/* wires */
 	out << "wires " << numwires << std::endl;
 	for(evl_wires::const_iterator witer = module.wires.begin(); witer != module.wires.end(); ++witer)
