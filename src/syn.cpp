@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <algorithm>
 
 struct evl_token {
 	enum token_type {NAME, NUMBER, SINGLE};
@@ -39,18 +40,29 @@ struct evl_statement {
 	enum statement_type {MODULE,WIRE,COMPONENT,ENDMODULE};
 
 	statement_type type;
-	evl_component component;
 	evl_tokens tokens;
 }; // struct evl_statement
 typedef std::list<evl_statement> evl_statements;
 
+struct evl_module
+{
+	enum module_type {TOP,OTHER};
+
+	module_type type;
+	std::string name;
+	evl_statements statements;
+	evl_components components;
+	evl_wires wires;
+};
+typedef std::list<evl_module> evl_modules;
+
 /* Function Prototypes */
 void pparse_error(std::string expected,std::string found,int line_no);
-bool process_component_statement(evl_statement &s);
+bool process_component_statement(evl_components &components,evl_statement &s);
 bool process_wire_statement(evl_wires &wires, evl_statement &s);
 bool move_tokens_into_statement(evl_tokens &statement_tokens, evl_tokens &tokens);
-void display_statements(std::ostream &out,const evl_statements &statements,const evl_wires &wires);
-bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens,evl_wires &wires);
+void display_statements(std::ostream &out,const evl_modules &modules);
+bool group_tokens_into_statements(evl_modules &modules,evl_tokens &tokens);
 void display_tokens(std::ostream &out, const evl_tokens &tokens);
 bool store_tokens_to_file(std::string file_name,const evl_tokens &tokens);
 bool extract_tokens_from_file(std::string evl_file, evl_tokens &tokens);
@@ -60,7 +72,7 @@ bool is_alpha(char ch);
 bool is_single(char ch);
 bool is_number(char ch);
 bool token_is_semicolon(const evl_token &token);
-bool store_statements_to_file(std::string file_name, const evl_statements &statements,const evl_wires &wires);
+bool store_statements_to_file(std::string file_name,const evl_modules &modules);
 
 int main(int argc, char *argv[])
 {
@@ -74,22 +86,23 @@ int main(int argc, char *argv[])
 
 	evl_tokens tokens;
 	evl_wires wires;
+	evl_modules modules;
 	if (!extract_tokens_from_file(evl_file, tokens))
 		return -1;
 	//display_tokens(std::cout,tokens);
 	if (!store_tokens_to_file(evl_file+".tokens", tokens))
 		return -1;
-	evl_statements statements;
-	if(!group_tokens_into_statements(statements,tokens,wires))
+	if(!group_tokens_into_statements(modules,tokens))
 		return -1;
-	if(!store_statements_to_file(evl_file+".syntax",statements,wires))
+	if(!store_statements_to_file(evl_file+".syntax",modules))
 		return -1;
-	display_statements(std::cout,statements,wires);
+	display_statements(std::cout,modules);
 
 	return 0;
 }
-bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens,evl_wires &wires)
+bool group_tokens_into_statements(evl_modules &modules,evl_tokens &tokens)
 {
+	evl_module module;
 	while(!tokens.empty())
 	{
 		evl_token token = tokens.front();
@@ -101,55 +114,58 @@ bool group_tokens_into_statements(evl_statements &statements,evl_tokens &tokens,
 		}
 		if(token.str == "module") //MODULE statement
 		{
-			evl_statement module;
-			module.type = evl_statement::MODULE;
+			module.type = evl_module::TOP;
+			evl_statement modulestatement;
+			modulestatement.type = evl_statement::MODULE;
 
-			if(!move_tokens_into_statement(module.tokens,tokens))
+			if(!move_tokens_into_statement(modulestatement.tokens,tokens))
 				return false;
 			
-			statements.push_back(module);
+			module.statements.push_back(modulestatement);
 		}
 		else if(token.str == "endmodule") //ENDMODULE statement
 		{
-			evl_statement endmodule;
-			endmodule.type = evl_statement::ENDMODULE;
+			evl_statement endmodulestatement;
+			endmodulestatement.type = evl_statement::ENDMODULE;
 
-			statements.push_back(endmodule);
+			module.statements.push_back(endmodulestatement);
 			tokens.pop_front();
 		}
 		else if(token.str == "wire") // WIRE statement
 		{
-			evl_statement wire;
-			wire.type = evl_statement::WIRE;
-			if(!move_tokens_into_statement(wire.tokens,tokens))		
+			evl_statement wirestatement;
+			wirestatement.type = evl_statement::WIRE;
+			if(!move_tokens_into_statement(wirestatement.tokens,tokens))		
 				return false;
-			if(!process_wire_statement(wires,wire))
+			if(!process_wire_statement(module.wires,wirestatement))
 				return false;
-			statements.push_back(wire);
+			module.statements.push_back(wirestatement);
 		}
 		else // COMPONENT statement 
 		{
-			evl_statement component;
-			component.type = evl_statement::COMPONENT;
-			if(!move_tokens_into_statement(component.tokens,tokens))
+			evl_statement componentstatement;
+			componentstatement.type = evl_statement::COMPONENT;
+			if(!move_tokens_into_statement(componentstatement.tokens,tokens))
 				return false;
-			if(!process_component_statement(component))
+			if(!process_component_statement(module.components,componentstatement))
 				return false;
-			statements.push_back(component);
+			module.statements.push_back(componentstatement);
 		}
 	}
+	modules.push_back(module);
 	return true;
 }
 void pparse_error(std::string expected,std::string found,int line_no)
 {
 	std::cerr << "Need '" << expected << "' but found '" << found << "' on line " << line_no << std::endl; 
 }
-bool process_component_statement(evl_statement &s)
+bool process_component_statement(evl_components &components,evl_statement &s)
 {
 	enum state_type {INIT,TYPE,NAME,PINS,PIN_NAME,PINS_DONE,BUS,BUS_MSB,BUS_COLON,BUS_LSB,BUS_DONE,DONE};
 	state_type state = INIT;
 	evl_pin pin;
-	s.component.numpins = 0;
+	evl_component component;
+	component.numpins = 0;
 	for(; !s.tokens.empty() && (state != DONE); s.tokens.pop_front())
 	{
 		evl_token t = s.tokens.front();
@@ -157,8 +173,8 @@ bool process_component_statement(evl_statement &s)
 		{
 			if(t.type == evl_token::NAME)
 			{
-				s.component.type = t.str;
-				s.component.name = "";
+				component.type = t.str;
+				component.name = "";
 				state = TYPE;
 			}
 			else
@@ -171,8 +187,8 @@ bool process_component_statement(evl_statement &s)
 		{
 			if(t.type == evl_token::NAME)
 			{
-				s.component.name = t.str;
-				s.component.numpins = 0;
+				component.name = t.str;
+				component.numpins = 0;
 				state = NAME;
 			}
 			else if(t.str == "(")
@@ -204,7 +220,7 @@ bool process_component_statement(evl_statement &s)
 				pin.name = t.str;
 				pin.bus_msb = -1;
 				pin.bus_lsb = -1;
-				s.component.numpins++;
+				component.numpins++;
 				state = PIN_NAME;
 			}
 			else
@@ -219,12 +235,12 @@ bool process_component_statement(evl_statement &s)
 				state = BUS;
 			else if(t.str == ",")
 			{
-				s.component.pins.push_back(pin);	
+				component.pins.push_back(pin);	
 				state = PINS;
 			}
 			else if(t.str == ")")
 			{
-				s.component.pins.push_back(pin);
+				component.pins.push_back(pin);
 				state = PINS_DONE;
 			}
 			else
@@ -297,12 +313,12 @@ bool process_component_statement(evl_statement &s)
 		{
 			if(t.str == ",")
 			{ 
-				s.component.pins.push_back(pin);
+				component.pins.push_back(pin);
 				state = PINS; 
 			}
 			else if(t.str == ")")
 			{
-				s.component.pins.push_back(pin);
+				component.pins.push_back(pin);
 				state = PINS_DONE;	
 			}
 			else
@@ -317,6 +333,7 @@ bool process_component_statement(evl_statement &s)
 		std::cerr << "Something went wrong with the component statement" << std::endl;
 		return false;
 	}
+	components.push_back(component);
 	return true;
 }
 bool process_wire_statement(evl_wires &wires, evl_statement &s)
@@ -497,9 +514,12 @@ void display_tokens(std::ostream &out,const evl_tokens &tokens)
 			out << "NUMBER " << iter->str << std::endl;
 	}
 }
-void display_statements(std::ostream &out,const evl_statements &statements,const evl_wires &wires)
+void display_statements(std::ostream &out,const evl_modules &modules)
 {
-	int numcomps = 0;
+	evl_module module = modules.front();
+	int numcomps = module.components.size();
+	int numwires = module.wires.size();
+	/*
 	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
 	{
 		evl_tokens tokens = iter->tokens;
@@ -516,44 +536,28 @@ void display_statements(std::ostream &out,const evl_statements &statements,const
 		}
 		if(iter->type == evl_statement::COMPONENT)
 			numcomps++;
-	}
+	}*/
+	/*module*/
+	evl_statement modulestatement = module.statements.front();
+	out << "module " << module.name << std::endl;
 			
-		
-	/*
-		else if (iter->type == evl_statement::ENDMODULE);
-
-		//Enumerate wires
-		else if (iter->type == evl_statement::WIRE)
-		{
-			if(witer != wires.end())
-			{
-				out << "\twire " << witer->name << " " << witer->width << std::endl;
-				++witer;
-			}
-		}
-
-		else; // must be COMPONENT
-		*/
 	/* wires */
-	int numwires = wires.size();
 	out << "wires " << numwires << std::endl;
-	for(evl_wires::const_iterator witer = wires.begin(); witer != wires.end(); ++witer)
+	for(evl_wires::const_iterator witer = module.wires.begin(); witer != module.wires.end(); ++witer)
 	{
 		out << "\twire " << witer->name << " " << witer->width << std::endl;
 	}
-
+		
 	/*components*/
 	out << "components " << numcomps << std::endl;
-	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
+	for (evl_components::const_iterator iter = module.components.begin(); iter != module.components.end(); ++iter)
 	{
-		if(iter->type == evl_statement::COMPONENT)
-		{
-			evl_component component = iter->component;
+			evl_component component = *iter;
 			if(component.name != "")
 				out << "\tcomponent " << component.type + " " << component.name + " "<< component.numpins << std::endl;
 			else
 				out << "\tcomponent " << component.type + " "<< component.numpins << std::endl;
-			evl_pins pins = iter->component.pins;
+			evl_pins pins = component.pins;
 			evl_pin pin; 
 			for(evl_pins::const_iterator piter = pins.begin(); piter != pins.end(); ++piter)
 			{
@@ -564,12 +568,11 @@ void display_statements(std::ostream &out,const evl_statements &statements,const
 					out << "\t\tpin " << piter->name << " "<< piter->bus_msb <<std::endl;
 				else if(pin.bus_msb != -1 && pin.bus_lsb != -1)
 					out << "\t\tpin " << piter->name << " " << piter->bus_msb << " " << piter->bus_lsb <<std::endl;
-			}
 		}
 	}
 
 }
-bool store_statements_to_file(std::string file_name, const evl_statements &statements, const evl_wires &wires)
+bool store_statements_to_file(std::string file_name,const evl_modules &modules)
 {
 	std::ofstream output_file(file_name.c_str());
     if (!output_file)
@@ -577,7 +580,7 @@ bool store_statements_to_file(std::string file_name, const evl_statements &state
         std::cerr << "I can't write " << file_name << std::endl;
         return -1;
     }
-	display_statements(output_file,statements,wires);
+	display_statements(output_file,modules);
 	return true;
 }
 bool store_tokens_to_file(std::string file_name,const evl_tokens &tokens)
