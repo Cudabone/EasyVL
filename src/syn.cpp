@@ -542,7 +542,8 @@ void display_statements(std::ostream &out,const evl_modules &modules)
 	
 	if(module.name != "")
 		out << "module " << module.name << std::endl;
-	out << "module" << std::endl;
+	else
+		out << "module" << std::endl;
 
 
 	/* wires */
