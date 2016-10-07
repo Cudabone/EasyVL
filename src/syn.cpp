@@ -519,8 +519,7 @@ void display_statements(std::ostream &out,const evl_modules &modules)
 	evl_module module = modules.front();
 	int numcomps = module.components.size();
 	int numwires = module.wires.size();
-	/*
-	for (evl_statements::const_iterator iter = statements.begin(); iter != statements.end(); ++iter)
+	for (evl_statements::const_iterator iter = module.statements.begin(); iter != module.statements.end(); ++iter)
 	{
 		evl_tokens tokens = iter->tokens;
 		size_t size = tokens.size();
@@ -534,12 +533,7 @@ void display_statements(std::ostream &out,const evl_modules &modules)
 				out << "module " << eit->str << std::endl;
 			}
 		}
-		if(iter->type == evl_statement::COMPONENT)
-			numcomps++;
-	}*/
-	/*module*/
-	evl_statement modulestatement = module.statements.front();
-	out << "module " << module.name << std::endl;
+	}
 			
 	/* wires */
 	out << "wires " << numwires << std::endl;
