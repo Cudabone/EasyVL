@@ -1,6 +1,9 @@
 #include "netlist.h"
 
-netlist::netlist();
+netlist::netlist()
+{
+
+}
 
 bool netlist::create(const evl_wires &wires, const evl_components &comps, const evl_wires_table &wires_table)
 {
@@ -24,7 +27,7 @@ bool netlist::create_nets(const evl_wires &wires)
 	return true;
 }
 
-std::string make_net_name(std::string wire_name, int i)
+std::string netlist::make_net_name(std::string wire_name, int i)
 {
 	assert(i >= 0);
 	std::ostringstream oss;
@@ -36,18 +39,18 @@ void netlist::create_net(std::string net_name)
 {
 	assert(nets_table_.find(net_name) == nets_table_.end());
 	net *n = new net(net_name);
-	net_table_[net_name] = n;
+	nets_table_[net_name] = n;
 	nets_.push_back(n);
 }
 
-bool netlist::create_gates(const evl_components &comps)
+bool netlist::create_gates(const evl_components &comps,const evl_wires_table &wires_table)
 {
-	for(iterator::const_iterator it = comps.begin(); it != comps.end(); it++)
+	for(evl_components::const_iterator it = comps.begin(); it != comps.end(); it++)
 		create_gate(*it,wires_table);
 	return true;
 }
 
-void netlist::create_gate(const evl_component &comp,nets_table nets_table_)
+bool netlist::create_gate(const evl_component &comp,const evl_wires_table &wires_table)
 {
 	gate *g = new gate;
 	gates_.push_back(g);

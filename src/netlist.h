@@ -20,7 +20,6 @@
 #include "main.h"
 //#endif
 
-
 typedef std::map<std::string,net *> nets_table;
 
 class netlist 
@@ -33,10 +32,10 @@ class netlist
 
 	//Private member funcitons
 	bool create_nets(const evl_wires &wires);
-	std::string make_net_name(std::string wire_name, int i)
-	void create_net(std::string net_name)
-	void create_gate(const evl_component &comp,nets_table nets_table_)
-	bool create_gates(const evl_components &comps);
+	std::string make_net_name(std::string wire_name, int i);
+	void create_net(std::string net_name);
+	bool create_gates(const evl_components &comps,const evl_wires_table &wires_table);
+	bool create_gate(const evl_component &comp, const evl_wires_table &wires_table);
 
 	public:
 	netlist();

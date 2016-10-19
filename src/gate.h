@@ -1,5 +1,3 @@
-#ifndef GATE_H
-#define GATE_H
 #include <string>
 #include <list>
 #include <vector>
@@ -21,6 +19,11 @@
 #include "main.h"
 //#endif
 
+#ifndef GATE_H
+#define GATE_H
+typedef std::map<std::string,net *> nets_table;
+
+class pin;
 class gate
 {
 	private:
@@ -33,7 +36,8 @@ class gate
 	bool validate_structural_semantics();
 
 	public:
-	bool create(const evl_component &c, const std::map<std::string, net *> &nets_table, const evl_wires_table &wires_table);
-	bool create_pin(const evl_pin &ep, size_t index,const std::map<std::string,net *> &nets_table, const evl_wires_table &wires_table);
+	gate();
+	bool create(const evl_component &c, const nets_table &nets_table_, const evl_wires_table &wires_table);
+	bool create_pin(const evl_pin &ep, size_t index,const nets_table &nets_table_, const evl_wires_table &wires_table);
 };
 #endif

@@ -1,5 +1,3 @@
-#ifndef MAIN_H
-#define MAIN_H
 #include <string>
 #include <iostream>
 #include <map>
@@ -12,6 +10,8 @@
 #include "netlist.h"
 //#endif
 
+#ifndef MAIN_H
+#define MAIN_H
 typedef std::map<std::string, int> evl_wires_table;
 
 void display_wires_table(std::ostream &out, const evl_wires_table &wires_table);
