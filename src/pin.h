@@ -1,14 +1,15 @@
-#include <string>
-#ifndef GATE_H
-#define GATE_H
-#include "gate.h"
-#endif
-#ifndef NET_H
-#define NET_H
-#include "net.h"
-#endif
 #ifndef PIN_H
 #define PIN_H
+#include <string>
+//#ifndef GATE_H
+//#define GATE_H
+#include "gate.h"
+//#endif
+//#ifndef NET_H
+//#define NET_H
+#include "net.h"
+//#endif
+
 class pin
 {
 	private:

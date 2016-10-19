@@ -1,25 +1,25 @@
+#ifndef NETLIST_H
+#define NETLIST_H
 #include <list>
 #include <sstream>
 #include <assert.h>
-#ifndef NET_H
-#define NET_H
+//#ifndef NET_H
+//#define NET_H
 #include "net.h"
-#endif
-#ifndef GATE_H
-#define GATE_H
+//#endif
+//#ifndef GATE_H
+//#define GATE_H
 #include "gate.h"
-#endif
-#ifndef PARSER_H
-#define PARSER_H
+//#endif
+//#ifndef PARSER_H
+//#define PARSER_H
 #include "parser.h"
-#endif
-#ifndef MAIN_H
-#define MAIN_H
+//#endif
+//#ifndef MAIN_H
+//#define MAIN_H
 #include "main.h"
-#endif
+//#endif
 
-#ifndef NETLIST_H
-#define NETLIST_H
 
 typedef std::map<std::string,net *> nets_table;
 

@@ -1,12 +1,12 @@
-#include <string>
-
-#ifndef PIN_H
-#define PIN_H
-#include "pin.h"
-#endif
-
 #ifndef NET_H
 #define NET_H
+#include <string>
+
+//#ifndef PIN_H
+//#define PIN_H
+#include "pin.h"
+//#endif
+
 class net
 {
 	private:

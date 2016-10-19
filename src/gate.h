@@ -1,26 +1,25 @@
+#ifndef GATE_H
+#define GATE_H
 #include <string>
 #include <list>
 #include <vector>
 #include <map>
-#ifndef PIN_H
-#define PIN_H
+//#ifndef PIN_H
+//#define PIN_H
 #include "pin.h"
-#endif
-#ifndef PARSER_H
-#define PARSER_H
+//#endif
+//#ifndef PARSER_H
+//#define PARSER_H
 #include "parser.h"
-#endif
-#ifndef NET_H
-#define NET_H
+//#endif
+//#ifndef NET_H
+//#define NET_H
 #include "net.h"
-#endif
-#ifndef MAIN_H
-#define MAIN_H
+//#endif
+//#ifndef MAIN_H
+//#define MAIN_H
 #include "main.h"
-#endif
-
-#ifndef GATE_H
-#define GATE_H
+//#endif
 
 class gate
 {

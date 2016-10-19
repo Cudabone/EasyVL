@@ -1,16 +1,16 @@
+#ifndef MAIN_H
+#define MAIN_H
 #include <string>
 #include <iostream>
 #include <map>
-#ifndef PARSER_H
-#define PARSER_H
+//#ifndef PARSER_H
+//#define PARSER_H
 #include "parser.h"
-#endif
-#ifndef NETLIST_H
-#define NETLIST_H
+//#endif
+//#ifndef NETLIST_H
+//#define NETLIST_H
 #include "netlist.h"
-#endif
-#ifndef MAIN_H
-#define MAIN_H
+//#endif
 
 typedef std::map<std::string, int> evl_wires_table;
 

@@ -7,7 +7,7 @@ CXXFLAGS = -g -Wall
 SRCS = ./src/main.cpp ./src/parser.cpp ./src/netlist.cpp ./src/net.cpp ./src/gate.cpp ./src/pin.cpp
 
 # define any directories containing header files other than the default
-INCLUDES = -I./src
+INCLUDES = -Isrc
 
 # define library paths in addition to the default
 LFLAGS = 
@@ -19,16 +19,18 @@ LIBS =
 OBJS = $(SRCS:.cpp=.o)
 
 # The executable
-MAIN = myevl
-
-.cpp.o:
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<  -o $@
+MAIN = ./myevl
 
 all: $(MAIN) 
 	@echo build complete
 
 $(MAIN): $(OBJS) 
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<  -o $@
+
+.PHONY: tests clean debug
 
 debug: $(FILES) 
 	g++ $(FILES) -Wall -g -lm -o myevl
