@@ -1,7 +1,34 @@
-FILES = ./src/syn.cpp 
+#Compiler
+CXX  = clang++
 
-all: $(FILES) 
-	g++ $(FILES) -Wall -O2 -lm -o myevl
+CXXFLAGS = -g -Wall
+
+# Source files
+SRCS = ./src/main.cpp ./src/parser.cpp ./src/netlist.cpp ./src/net.cpp ./src/gate.cpp ./src/pin.cpp
+
+# define any directories containing header files other than the default
+INCLUDES = -I/Users/cuda017/my449/src
+
+# define library paths in addition to the default
+LFLAGS = 
+
+# libraries to link into executable:
+LIBS = 
+
+# The object files
+OBJS = $(SRCS:.cpp=.o)
+
+# The executable
+MAIN = myevl
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<  -o $@
+
+all: $(MAIN) 
+	@echo build complete
+
+$(MAIN): $(OBJS) 
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 
 debug: $(FILES) 
 	g++ $(FILES) -Wall -g -lm -o myevl
@@ -16,3 +43,4 @@ tests: $(FILES)
 clean: 
 	@rm -f ./myevl ./mytests/*.tokens ./mytests/*.syntax 
 	@rm -rf ./myevl.dSYM
+
