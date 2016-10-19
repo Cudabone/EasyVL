@@ -1,5 +1,5 @@
 #Compiler
-CXX  = clang++
+CXX  = g++
 
 CXXFLAGS = -g -Wall
 
@@ -7,7 +7,7 @@ CXXFLAGS = -g -Wall
 SRCS = ./src/main.cpp ./src/parser.cpp ./src/netlist.cpp ./src/net.cpp ./src/gate.cpp ./src/pin.cpp
 
 # define any directories containing header files other than the default
-INCLUDES = -I/Users/cuda017/my449/src
+INCLUDES = -I./src
 
 # define library paths in addition to the default
 LFLAGS = 
