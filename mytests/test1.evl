@@ -1,2 +1,4 @@
 module test1;
+wire a,b,c;
+and(c,a,b);
 endmodule

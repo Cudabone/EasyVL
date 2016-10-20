@@ -1,3 +1,4 @@
+#include <fstream>
 #include "main.h"
 
 int main(int argc, char *argv[])
@@ -19,9 +20,12 @@ int main(int argc, char *argv[])
 	evl_wires_table wires_table;
 
 	make_wires_table(wires, wires_table);
-	netlist nl;
-	if(!nl.create(wires,comps,wires_table))
+	netlist *nl = new netlist;
+	if(!nl->create(wires,comps,wires_table))
 		return -1;
+	if(!store_netlist_to_file(evl_file+".netlist",module,*nl))
+		return -1;
+	display_netlist(std::cout,module,*nl);
 	return 0;	
 }
 bool make_wires_table(const evl_wires &wires, evl_wires_table &wires_table)
@@ -44,4 +48,21 @@ void display_wires_table(std::ostream &out, const evl_wires_table &wires_table)
 	{
 		out << "wire " << it->first << " " << it->second << std::endl;
 	}
+}
+void display_netlist(std::ostream &out,const evl_module &module,const netlist &nl)
+{
+	//Print Module
+	out << "Module " << module.name << std::endl;
+	nl.display_netlist(out);
+}
+bool store_netlist_to_file(std::string file_name,const evl_module &module,const netlist &nl)
+{
+	std::ofstream output_file(file_name.c_str());
+    if (!output_file)
+    {
+        std::cerr << "I can't write " << file_name << std::endl;
+        return -1;
+    }
+	display_netlist(output_file,module,nl);
+	return true;
 }

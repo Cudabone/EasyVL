@@ -3,10 +3,6 @@
 #include <string>
 #include <list>
 
-//#ifndef PIN_H
-//#define PIN_H
-//#include "pin.h"
-//#endif
 class pin;
 
 class net
@@ -15,9 +11,14 @@ class net
 	std::string name_;
 	char signal_;
 	std::list<pin *> connections_;
+	int num_pins;
 
 	public: 
 	net(std::string name);
 	void append_pin(pin *p);
+	std::string get_name();
+	char get_signal();
+	std::list<pin *> get_connections();
+	int get_num_pins();
 };
 #endif

@@ -1,3 +1,4 @@
+#include <fstream>
 #include "parser.h"
 
 bool parse_evl_file(std::string evl_file, evl_modules &modules)
@@ -5,17 +6,17 @@ bool parse_evl_file(std::string evl_file, evl_modules &modules)
 	evl_tokens tokens;
 	evl_wires wires;
 	if (!extract_tokens_from_file(evl_file, tokens))
-		return -1;
+		return false;
 	//display_tokens(std::cout,tokens);
 	if (!store_tokens_to_file(evl_file+".tokens", tokens))
-		return -1;
+		return false;
 	if(!group_tokens_into_statements(modules,tokens))
-		return -1;
+		return false;
 	if(!store_statements_to_file(evl_file+".syntax",modules))
-		return -1;
+		return false;
 	//display_statements(std::cout,modules);
 
-	return 0;
+	return true;
 }
 bool group_tokens_into_statements(evl_modules &modules,evl_tokens &tokens)
 {
