@@ -51,8 +51,8 @@ void display_wires_table(std::ostream &out, const evl_wires_table &wires_table)
 }
 void display_netlist(std::ostream &out,const evl_module &module,const netlist &nl)
 {
-	//Print Module
-	out << "Module " << module.name << std::endl;
+	//Print module
+	out << "module " << module.name << std::endl;
 	nl.display_netlist(out);
 }
 bool store_netlist_to_file(std::string file_name,const evl_module &module,const netlist &nl)
