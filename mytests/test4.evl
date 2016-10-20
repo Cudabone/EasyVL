@@ -1,0 +1,4 @@
+module test4;
+wire a,b,c,d,e,f,out;
+xor(out,a,b,c,d,e,f);
+endmodule

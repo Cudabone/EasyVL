@@ -1,4 +1,8 @@
-module test1;
+module test2_;
 wire a,b,c;
-and(c,a);
+wire d,e,f;
+wire out;
+and(a,b,c);
+and(d,e,f); 
+xor(out,a,d);
 endmodule

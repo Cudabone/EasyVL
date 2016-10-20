@@ -1,0 +1,4 @@
+module test5;
+wire a,b,c,out;
+or(out,a,b,c);
+endmodule

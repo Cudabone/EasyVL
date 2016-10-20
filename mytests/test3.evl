@@ -1,0 +1,4 @@
+module $test3;
+wire a,b,c,d,out;
+and(out,a,b,c,d);
+endmodule
