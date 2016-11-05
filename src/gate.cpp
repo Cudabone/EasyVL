@@ -99,7 +99,6 @@ bool gate::verify_pin_width(int width)
 			std::cout << "Expected a pin width of " << width << " for component '"<< type_ << "'" <<std::endl;
 				return false;
 		}
-			return false;
 	}
 	return true;
 }
