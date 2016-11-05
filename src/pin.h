@@ -21,8 +21,8 @@ class pin
 	//net *net_;
 	std::vector<net *> nets_;
 	int width_;
-
-	bool validate_structural_semantics();
+	int msb_;
+	int lsb_;
 
 	public:
 	pin();
