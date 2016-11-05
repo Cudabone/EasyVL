@@ -108,8 +108,15 @@ void netlist::display_netlist(std::ostream &out) const
 			pin *p = *it;
 			//Implement bus printing here
 			// pin.get_width(); 
-			net *n = p->get_net();
-			out << "    pin " << "1" << " " << n->get_name() << std::endl;
+			std::vector<net *> nets = p->get_nets();
+			out << "    pin " << p->get_width() << " ";
+			for(std::vector<net *>::const_iterator npp = nets.begin(); npp != nets.end(); npp++)
+			{
+				net *n = *npp;
+				out << n->get_name() << " ";
+			}
+			out << std::endl;
+
 		}
 	}
 }

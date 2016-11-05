@@ -45,17 +45,61 @@ bool gate::validate_structural_semantics()
 			std::cout << "Expected at least 3 pins for component '"<< type_ << "' but found '"<< num_pins <<"'" <<std::endl;
 				return false;
 		}
-		else
+		else if(!verify_pin_width(1))
+				return false;
+	}
+	else if(type_ == "not" || type_ == "buf")
+	{
+		if(num_pins != 2)
 		{
-			pin *p;
-			for(std::vector<pin *>::const_iterator it = pins_.begin(); it != pins_.end(); it++)
-			{
-				p = *it;
-				if(p->get_width() != 1)
-					return false;
-			}
+			std::cout << "Expected at exactly 2 pins for component '"<< type_ << "' but found '"<< num_pins <<"'" <<std::endl;
+				return false;
 		}
-
+		else if(!verify_pin_width(1))
+				return false;
+	}
+	else if(type_ == "evl_dff" || type_ == "tris")
+	{
+		if(num_pins != 3)
+		{
+			std::cout << "Expected at exactly 3 pins for component '"<< type_ << "' but found '"<< num_pins <<"'" <<std::endl;
+				return false;
+		}
+		else if(!verify_pin_width(1))
+				return false;
+	}
+	else if(type_ == "evl_one" || type_ == "evl_zero" || type_ == "evl_input")
+	{
+		if(num_pins < 1)
+		{
+			std::cout << "Expected at least 1 pins for component '"<< type_ << "' but found '"<< num_pins <<"'" <<std::endl;
+				return false;
+		}
+		//Verify all pins are outputs
+	}
+	else if(type_ == "evl_output")
+	{
+		if(num_pins < 1)
+		{
+			std::cout << "Expected at least 1 pins for component '"<< type_ << "' but found '"<< num_pins <<"'" <<std::endl;
+				return false;
+		}
+		//Verify all pins are inputs
+	}
+	return true;
+}
+bool gate::verify_pin_width(int width)
+{
+	pin *p;
+	for(std::vector<pin *>::const_iterator it = pins_.begin(); it != pins_.end(); it++)
+	{
+		p = *it;
+		if(p->get_width() != width)
+		{
+			std::cout << "Expected a pin width of " << width << " for component '"<< type_ << "'" <<std::endl;
+				return false;
+		}
+			return false;
 	}
 	return true;
 }

@@ -43,6 +43,6 @@ tests: $(FILES)
 	@ ./myevl ./mytests/test5.evl
  
 clean: 
-	@rm -f ./myevl ./mytests/*.tokens ./mytests/*.syntax ./src/*.o
+	@rm -f ./src/*.o ./myevl ./mytests/*.tokens ./mytests/*.syntax ./mytests/*.netlist
 	@rm -rf ./myevl.dSYM
 

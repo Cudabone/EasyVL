@@ -21,6 +21,7 @@ class gate
 	void set_name(std::string name);
 	void set_type(std::string type);
 	bool validate_structural_semantics();
+	bool verify_pin_width(int width);
 
 	public:
 	gate();

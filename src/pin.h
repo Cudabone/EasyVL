@@ -2,6 +2,9 @@
 #define PIN_H
 #include <string>
 #include <map>
+#include <sstream>
+#include <vector>
+#include <assert.h>
 #include "net.h"
 #include "parser.h"
 
@@ -15,7 +18,8 @@ class pin
 	char dir_;
 	gate *gate_;
 	size_t index_;
-	net *net_;
+	//net *net_;
+	std::vector<net *> nets_;
 	int width_;
 
 	bool validate_structural_semantics();
@@ -24,7 +28,7 @@ class pin
 	pin();
 	bool create(gate *g, size_t index, const evl_pin &p, const nets_table &nets_table_);
 	gate *get_gate();
-	net *get_net();
+	std::vector<net *> get_nets();
 	char get_dir();
 	size_t get_index();
 	int get_width();
