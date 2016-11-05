@@ -71,7 +71,7 @@ bool netlist::create_gate(const evl_component &comp,const evl_wires_table &wires
 {
 	gate *g = new gate;
 	gates_.push_back(g);
-	return g->create(comp,nets_table_,wires_table_);
+	return g->create(comp,nets_table_,wires_table);
 }
 
 void netlist::display_netlist(std::ostream &out) const

@@ -14,7 +14,7 @@ class netlist
 	std::list<gate *> gates_;
 	std::list<net *> nets_;
 	nets_table nets_table_;
-	evl_wires_table wires_table_;
+	//evl_wires_table wires_table_;
 	int num_nets;
 	int num_gates;
 
