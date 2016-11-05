@@ -78,9 +78,9 @@ void netlist::display_netlist(std::ostream &out) const
 {
 	//print nets and components
 	out << "nets " << num_nets << std::endl;
-	for(nets_table::const_iterator it = nets_table_.begin(); it != nets_table_.end(); it++)
+	for(std::list<net *>::const_iterator it = nets_.begin(); it != nets_.end(); it++)
 	{
-		net *n = it->second;	
+		net *n = *it;	
 		out << "  net " << n->get_name() << " " << n->get_num_pins() << std::endl;
 		std::list<pin *> connections = n->get_connections();
 		for(std::list<pin *>::const_iterator it = connections.begin(); it != connections.end(); it++)
