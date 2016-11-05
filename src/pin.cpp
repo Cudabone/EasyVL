@@ -20,17 +20,17 @@ bool pin::create(gate *g, size_t index, const evl_pin &p, const nets_table &nets
 			{
 				std::ostringstream oss;
 				oss << p.name << "[" << i << "]";
-				std::string net_name = oss.str();
-				net *n = nets_table_.find(net_name)->second;
+				std::string name = oss.str();
+				net *n = nets_table_.find(name)->second;
 				nets_.push_back(n);
 				n->append_pin(this);
 			}
 		}
 		else //Just a 1 bit wire
 		{
-		net *n = nets_table_.find(net_name)->second;
-		nets_.push_back(n);
-		n->append_pin(this);
+			net *n = nets_table_.find(net_name)->second;
+			nets_.push_back(n);
+			n->append_pin(this);
 		}
 	}
 	else //Guarenteed Bus
