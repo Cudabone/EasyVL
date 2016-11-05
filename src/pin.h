@@ -26,7 +26,7 @@ class pin
 
 	public:
 	pin();
-	bool create(gate *g, size_t index, const evl_pin &p, const nets_table &nets_table_);
+	bool create(gate *g, size_t index, const evl_pin &p, const nets_table &nets_table_, const evl_wires_table &wires_table);
 	gate *get_gate();
 	std::vector<net *> get_nets();
 	char get_dir();
