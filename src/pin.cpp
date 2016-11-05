@@ -79,6 +79,25 @@ bool pin::create(gate *g, size_t index, const evl_pin &p, const nets_table &nets
 	}
 	return true;
 }
+void pin::set_dir(std::string type, int index)
+{
+	if(type == "evl_output")
+	{
+		dir_ = 'o';
+	}
+	else if(type == "evl_input")
+	{
+		dir_ = 'i';
+	}
+	else if(index == 0)
+	{
+		dir_ = 'o';
+	}
+	else
+	{
+		dir_ = 'i';
+	}
+}
 gate *pin::get_gate()
 {
 	return gate_;

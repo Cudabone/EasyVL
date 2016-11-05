@@ -33,6 +33,7 @@ bool gate::create_pin(const evl_pin &ep, size_t index,const nets_table &nets_tab
 	//resolve semantics of ep using wires_table_
 	pin *p = new pin();
 	pins_.push_back(p);
+	p->set_dir(name_, index);
 	return p->create(this,index,ep,nets_table_,wires_table);
 }
 

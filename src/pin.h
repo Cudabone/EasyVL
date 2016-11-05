@@ -8,7 +8,6 @@
 #include "net.h"
 #include "parser.h"
 
-class net;
 class gate;
 typedef std::map<std::string,net *> nets_table;
 
@@ -24,8 +23,10 @@ class pin
 	int msb_;
 	int lsb_;
 
+
 	public:
 	pin();
+	void set_dir(std::string type, int index);
 	bool create(gate *g, size_t index, const evl_pin &p, const nets_table &nets_table_, const evl_wires_table &wires_table);
 	gate *get_gate();
 	std::vector<net *> get_nets();
