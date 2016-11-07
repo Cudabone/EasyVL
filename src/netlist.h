@@ -27,6 +27,7 @@ class netlist
 
 	public:
 	netlist();
+	~netlist();
 	bool create(const evl_wires &wires, const evl_components &comps, const evl_wires_table &wires_table);
 	void display_netlist(std::ostream &out) const;
 };

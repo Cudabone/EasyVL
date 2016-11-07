@@ -7,6 +7,16 @@ netlist::netlist()
 	num_nets = 0;
 	num_gates = 0;
 }
+netlist::~netlist()
+{
+	//delete nets
+	for(std::list<net *>::iterator it = nets_.begin(); it != nets_.end(); it++)
+		delete *it;
+	//delete gates
+	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
+		delete *it;
+
+}
 
 bool netlist::create(const evl_wires &wires, const evl_components &comps, const evl_wires_table &wires_table)
 {

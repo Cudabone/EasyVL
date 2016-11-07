@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
 		return -1;
 	display_netlist(std::cout,module,*nl);
 	return 0;	
+	//Delete Netlist
+	delete nl;
 }
 bool make_wires_table(const evl_wires &wires, evl_wires_table &wires_table)
 {

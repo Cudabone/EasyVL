@@ -25,6 +25,7 @@ class gate
 
 	public:
 	gate();
+	~gate();
 	int get_num_pins();
 	std::vector<pin *> get_pins();
 	std::string get_name();

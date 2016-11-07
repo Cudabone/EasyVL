@@ -4,6 +4,11 @@ gate::gate()
 {
 	num_pins = 0;
 }
+gate::~gate()
+{
+	for(std::vector<pin *>::iterator it = pins_.begin(); it != pins_.end(); it++)
+		delete *it;
+}
 
 void gate::set_name(std::string name)
 {

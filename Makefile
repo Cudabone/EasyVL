@@ -1,7 +1,7 @@
 #Compiler
 CXX  = g++
 
-CXXFLAGS = -g -Wall
+CXXFLAGS = -g -Wall -O2 
 
 # Source files
 SRCS = ./src/main.cpp ./src/parser.cpp ./src/netlist.cpp ./src/net.cpp ./src/gate.cpp ./src/pin.cpp
