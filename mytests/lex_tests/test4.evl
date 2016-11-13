@@ -1,0 +1,6 @@
+module nametest4(_in,out);
+	input _in;
+	output out;
+	not (out,_in);
+	// Comment
+endmodule

@@ -1,0 +1,5 @@
+module testingwires;
+wire a;
+wire c,b,e;
+wire [7:0] disbus,bus2;
+endmodule
