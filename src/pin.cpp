@@ -3,6 +3,7 @@
 pin::pin()
 {
 	width_ = 0;
+	dir_ = 'n'; //null dir
 }
 bool pin::create(gate *g, size_t index, const evl_pin &p, const nets_table &nets_table_, const evl_wires_table &wires_table)
 {

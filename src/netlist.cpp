@@ -17,10 +17,68 @@ netlist::~netlist()
 		delete *it;
 
 }
+void netlist::simulate(size_t cycles)
+{
+	sim_init();
+	/*
+	gate *g = *(gates_.begin());
+	std::vector<pin *> gate_pins = g->get_pins();
+	for(std::vector<pin *>::iterator pp = gate_pins.begin(); pp != gate_pins.end(); pp++)
+	{
+		std::vector<net *> pin_nets = (*pp)->
+		for(std::vector<net *>::iterator )
+	}
+
+	*/
+	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
+	{
+		if((*it)->get_visited() == false)
+			(*it)->evaluate();
+	}
+	
+	//store all flip flops to 0
+	//set all nets to null val
+	//evaluate all gates based on net value
+	//find the value that drives net
+	//ensure only one driver for each net
+
+}
+void netlist::iteration()
+{
+	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
+	{
+
+	}
+}
+void netlist::sim_init()
+{
+	for(std::list<net *>::iterator it = nets_.begin(); it != nets_.end(); it++)
+	{
+		(*it)->set_signal('?');
+	}
+	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
+	{
+		(*it)->set_output(false);
+		(*it)->set_visited(false);
+		if((*it)->get_type() == "evl_dff")
+		{
+			eval_list_.push_back(*it);
+			(*it)->set_state(false);
+			(*it)->set_output((*it)->get_state());
+		}
+	}
+}
 
 bool netlist::create(const evl_wires &wires, const evl_components &comps, const evl_wires_table &wires_table)
 {
-	return create_nets(wires) && create_gates(comps,wires_table);
+	bool val = create_nets(wires) && create_gates(comps,wires_table);
+	finalize_nets();
+	return val;
+}
+void netlist::finalize_nets()
+{
+	for(std::list<net *>::iterator it = nets_.begin(); it != nets_.end(); it++)
+		(*it)->set_driver();
 }
 
 bool netlist::create_nets(const evl_wires &wires)

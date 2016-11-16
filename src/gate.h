@@ -17,6 +17,9 @@ class gate
 	std::string type_;
 	std::vector<pin *> pins_;
 	int num_pins;
+	bool output_;
+	bool visited_;
+	bool state_, next_state_;
 
 	void set_name(std::string name);
 	void set_type(std::string type);
@@ -30,6 +33,15 @@ class gate
 	std::vector<pin *> get_pins();
 	std::string get_name();
 	std::string get_type();
+	void set_output(bool output);
+	void set_state(bool state);
+	void set_next_state();
+	void compute_output(std::vector<bool> inputs);
+	bool get_state();
+	bool get_output();
+	bool get_visited();
+	void set_visited(bool visited);
+	void evaluate();
 	bool create(const evl_component &c, const nets_table &nets_table_, const evl_wires_table &wires_table);
 	bool create_pin(const evl_pin &ep, size_t index,const nets_table &nets_table_, const evl_wires_table &wires_table);
 };

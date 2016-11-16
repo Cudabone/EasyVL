@@ -18,6 +18,74 @@ void gate::set_type(std::string type)
 {
 	type_= type;
 }
+void gate::set_output(bool output)
+{
+	output_ = output;
+}
+bool gate::get_output()
+{
+	return output_;
+}
+bool gate::get_visited()
+{
+	return visited_;
+}
+void gate::set_visited(bool visited)
+{
+	visited_ = visited;
+}
+bool gate::get_state()
+{
+	return state_;
+}
+void gate::set_state(bool state)
+{
+	state_ = state;
+}
+void gate::set_next_state()
+{
+	state_ = next_state_;
+}
+void gate::evaluate()
+{
+	std::vector<bool> inputs;
+	if(visited_ == false)
+	{
+		for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
+		{
+			std::vector<net *> pin_nets = (*pp)->get_nets();
+			if((*pp)->get_dir() == 'i')
+			{
+				for(std::vector<net *>::iterator np = pin_nets.begin(); np != pin_nets.end(); np++)
+				{
+					if((*np)->get_signal() == '?')
+						(*np)->get_driver()->evaluate();
+					inputs.push_back((*np)->get_signal());
+				}
+			}
+		}
+		compute_output(inputs);
+		visited_ = true;
+	}
+}
+void gate::compute_output(std::vector<bool> inputs)
+{
+	if(type_ == "not")
+	{
+			
+	}
+	else if(type_ == "evl_dff")
+	{
+		std::vector<net *> outputs = pins_[1]->get_nets();
+		assert(outputs.size() == 1);
+		net *input_net = outputs[0];
+		//next_state = input_net->get_logic_value();
+	}
+	else if(type_ == "evl_output")
+	{
+
+	}
+}
 bool gate::create(const evl_component &c, const nets_table &nets_table_, const evl_wires_table &wires_table)
 {
 	set_name(c.name);

@@ -5,9 +5,10 @@
 #include <sstream>
 #include <vector>
 #include <assert.h>
-#include "net.h"
 #include "parser.h"
+#include "net.h"
 
+class net;
 class gate;
 typedef std::map<std::string,net *> nets_table;
 

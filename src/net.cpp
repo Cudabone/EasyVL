@@ -28,3 +28,23 @@ int net::get_num_pins()
 {
 	return num_pins;
 }
+void net::set_driver()
+{
+	for(std::list<pin *>::iterator it = connections_.begin(); it != connections_.end(); it++)
+	{
+		assert((*it)->get_dir() != 'n');
+		if((*it)->get_dir() == 'o')
+		{
+			driver_ = (*it)->get_gate();
+			break;
+		}
+	}
+}
+gate *net::get_driver()
+{
+	return driver_;
+}
+void net::set_signal(char signal)
+{
+	signal_ = signal;
+}
