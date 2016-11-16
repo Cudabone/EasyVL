@@ -64,26 +64,49 @@ void gate::evaluate()
 				}
 			}
 		}
-		compute_output(inputs);
+		bool output = compute_output(inputs);
+		std::vector<net *> out_nets = pins_[0]->get_nets();
+		for(std::vector<net *>::iterator it = out_nets.begin(); it != out_nets.end(); it++)
+		{
+			(*it)->set_logic_value(output);
+		}
 		visited_ = true;
 	}
 }
-void gate::compute_output(std::vector<bool> inputs)
+bool gate::compute_output(std::vector<bool> inputs)
 {
+	bool output;
 	if(type_ == "not")
-	{
-			
+	{	
+		if(inputs[0] == false)
+			output = true;
+		else
+			output = false;
 	}
 	else if(type_ == "evl_dff")
 	{
-		std::vector<net *> outputs = pins_[1]->get_nets();
-		assert(outputs.size() == 1);
-		net *input_net = outputs[0];
-		//next_state = input_net->get_logic_value();
+		state_ = next_state_;
+		assert(inputs.size() == 1);
+		next_state_ = inputs[0];
+		return state_;
 	}
 	else if(type_ == "evl_output")
 	{
 
+	}
+	assert(false);
+	return false;
+}
+void gate::set_output(bool output)
+{
+	for(std::vector<net *>::iterator it = pins)
+}
+void gate::init_state()
+{
+	if(type_ == "evl_output")
+	{
+		state_ = false;
+		next_state_ = false;
 	}
 }
 bool gate::create(const evl_component &c, const nets_table &nets_table_, const evl_wires_table &wires_table)

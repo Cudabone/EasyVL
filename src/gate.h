@@ -36,8 +36,9 @@ class gate
 	void set_output(bool output);
 	void set_state(bool state);
 	void set_next_state();
-	void compute_output(std::vector<bool> inputs);
+	bool compute_output(std::vector<bool> inputs);
 	bool get_state();
+	void init_state();
 	bool get_output();
 	bool get_visited();
 	void set_visited(bool visited);

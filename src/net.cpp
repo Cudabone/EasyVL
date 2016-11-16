@@ -48,3 +48,11 @@ void net::set_signal(char signal)
 {
 	signal_ = signal;
 }
+bool net::get_logic_value()
+{
+	return logic_value_;
+}
+void net::set_logic_value(bool value)
+{
+	logic_value_ = value;	
+}

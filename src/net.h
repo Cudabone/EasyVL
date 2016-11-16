@@ -11,6 +11,7 @@ class net
 	private:
 	std::string name_;
 	char signal_;
+	bool logic_value_;
 	std::list<pin *> connections_;
 	int num_pins;
 	gate *driver_;
@@ -25,5 +26,7 @@ class net
 	int get_num_pins();
 	void set_driver();
 	void set_signal(char signal);
+	bool get_logic_value();
+	void set_logic_value(bool value);
 };
 #endif
