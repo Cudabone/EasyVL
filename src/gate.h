@@ -20,6 +20,7 @@ class gate
 	bool output_;
 	bool visited_;
 	bool state_, next_state_;
+	std::vector<bool> outputs;
 
 	void set_name(std::string name);
 	void set_type(std::string type);
@@ -34,9 +35,10 @@ class gate
 	std::string get_name();
 	std::string get_type();
 	void set_output(bool output);
+	void set_out_nets(bool output);
 	void set_state(bool state);
 	void set_next_state();
-	bool compute_output(std::vector<bool> inputs);
+	bool compute_output(const std::vector<bool> &inputs);
 	bool get_state();
 	void init_state();
 	bool get_output();

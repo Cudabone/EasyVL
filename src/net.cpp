@@ -56,3 +56,15 @@ void net::set_logic_value(bool value)
 {
 	logic_value_ = value;	
 }
+void net::set_invalid_signal()
+{
+	valid_ = false;
+}
+bool net::valid_signal()
+{
+	return valid_;
+}
+void net::set_valid_signal()
+{
+	valid_ = true;
+}

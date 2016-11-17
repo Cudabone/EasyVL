@@ -28,6 +28,7 @@ class netlist
 	void finalize_nets();
 	void sim_init();
 	void iteration();
+	void set_nets_invalid();
 
 	public:
 	netlist();

@@ -12,6 +12,7 @@ class net
 	std::string name_;
 	char signal_;
 	bool logic_value_;
+	bool valid_;
 	std::list<pin *> connections_;
 	int num_pins;
 	gate *driver_;
@@ -28,5 +29,8 @@ class net
 	void set_signal(char signal);
 	bool get_logic_value();
 	void set_logic_value(bool value);
+	void set_invalid_signal();
+	void set_valid_signal();
+	bool valid_signal();
 };
 #endif

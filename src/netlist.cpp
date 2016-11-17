@@ -28,13 +28,17 @@ void netlist::simulate(size_t cycles)
 		std::vector<net *> pin_nets = (*pp)->
 		for(std::vector<net *>::iterator )
 	}
-
 	*/
-	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
+	for(size_t i = 1; i <= cycles; i++)
 	{
-		if((*it)->get_visited() == false)
-			(*it)->evaluate();
+		for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
+		{
+			if((*it)->get_visited() == false)
+				(*it)->evaluate();
+		}
+		set_nets_invalid();
 	}
+	//store output for iteration
 	
 	//store all flip flops to 0
 	//set all nets to null val
@@ -43,19 +47,20 @@ void netlist::simulate(size_t cycles)
 	//ensure only one driver for each net
 
 }
-void netlist::iteration()
-{
-	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
-	{
-
-	}
-}
-void netlist::sim_init()
+void netlist::set_nets_invalid()
 {
 	for(std::list<net *>::iterator it = nets_.begin(); it != nets_.end(); it++)
 	{
-		(*it)->set_signal('?');
+		(*it)->set_invalid_signal();
 	}
+}
+void netlist::iteration()
+{
+
+}
+void netlist::sim_init()
+{
+	set_nets_invalid();
 	for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
 	{
 		(*it)->set_output(false);

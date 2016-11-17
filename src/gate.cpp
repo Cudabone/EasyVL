@@ -46,49 +46,102 @@ void gate::set_next_state()
 {
 	state_ = next_state_;
 }
+/*
 void gate::evaluate()
 {
 	std::vector<bool> inputs;
 	if(visited_ == false)
 	{
+		visited_ = true;
 		for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
 		{
 			std::vector<net *> pin_nets = (*pp)->get_nets();
+			if(type_ == "evl_dff")
+			{
+				if((*pp)->get_dir() == 'o')
+			}
 			if((*pp)->get_dir() == 'i')
 			{
 				for(std::vector<net *>::iterator np = pin_nets.begin(); np != pin_nets.end(); np++)
 				{
-					if((*np)->get_signal() == '?')
+					//if((*np)->get_signal() == '?')
+					if((*np)->get_driver()->get_visited() == false)
+					{
 						(*np)->get_driver()->evaluate();
+					}
 					inputs.push_back((*np)->get_signal());
 				}
 			}
+			else if((*pp)->get_dir() == 'o')
+			{
+
+			}
 		}
 		bool output = compute_output(inputs);
-		std::vector<net *> out_nets = pins_[0]->get_nets();
-		for(std::vector<net *>::iterator it = out_nets.begin(); it != out_nets.end(); it++)
-		{
-			(*it)->set_logic_value(output);
-		}
-		visited_ = true;
+		output_ = output;
+		set_out_nets();
 	}
 }
-bool gate::compute_output(std::vector<bool> inputs)
+*/
+void gate::evaluate()
 {
-	bool output;
+	std::vector<bool> inputs;
+	if(type_ == "evl_dff")
+	{
+		net *out_net = pins_[0]->get_nets()[0];
+		out_net->set_valid_signal();
+		out_net->set_logic_value(state_);
+		//Ensure we dont find driver of clock
+		net *clk_net = pins_[2]->get_nets()[0];
+		clk_net->set_valid_signal();
+		clk_net->set_logic_value(true);
+		if(state_ == true)
+			std::cout << 1;
+		else
+			std::cout << 0;
+		std::cout << std::endl;
+	}
+	for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
+	{
+		std::vector<net *> pin_nets = (*pp)->get_nets();
+		if((*pp)->get_dir() == 'i')
+		{
+			for(std::vector<net *>::iterator np = pin_nets.begin(); np != pin_nets.end(); np++)
+			{
+				if(!((*np)->valid_signal()))
+				{
+					(*np)->get_driver()->evaluate();
+				}
+				//if((*np)->get_signal() == '?')
+				/*
+				   if((*np)->get_driver()->get_visited() == false)
+				   {
+				   (*np)->get_driver()->evaluate();
+				   }
+				   */
+				inputs.push_back((*np)->get_logic_value());
+			}
+		}
+	}
+	if(type_ == "evl_dff")
+	{
+		next_state_ = inputs[0];
+		state_ = next_state_;
+	}
+	else
+	{
+		bool output = compute_output(inputs);
+		set_out_nets(output);
+	}
+}
+bool gate::compute_output(const std::vector<bool> &inputs)
+{
 	if(type_ == "not")
 	{	
 		if(inputs[0] == false)
-			output = true;
+			return true;
 		else
-			output = false;
-	}
-	else if(type_ == "evl_dff")
-	{
-		state_ = next_state_;
-		assert(inputs.size() == 1);
-		next_state_ = inputs[0];
-		return state_;
+			return false;
 	}
 	else if(type_ == "evl_output")
 	{
@@ -97,9 +150,17 @@ bool gate::compute_output(std::vector<bool> inputs)
 	assert(false);
 	return false;
 }
-void gate::set_output(bool output)
+void gate::set_out_nets(bool output)
 {
-	for(std::vector<net *>::iterator it = pins)
+	std::vector<net *> out_nets = pins_[0]->get_nets();
+	for(std::vector<net *>::iterator it = out_nets.begin(); it != out_nets.end(); it++)
+	{
+		if(!((*it)->valid_signal()))
+		{ 
+			(*it)->set_logic_value(output); 
+			(*it)->set_valid_signal();
+		}
+	}
 }
 void gate::init_state()
 {

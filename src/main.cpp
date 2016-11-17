@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 	if(!store_netlist_to_file(evl_file+".netlist",module,*nl))
 		return -1;
 	display_netlist(std::cout,module,*nl);
+	nl->simulate(1000);
 	return 0;	
 	//Delete Netlist
 	delete nl;
