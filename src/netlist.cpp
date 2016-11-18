@@ -52,7 +52,6 @@ void netlist::simulate(size_t cycles)
 				{
 					output_file << (*pp)->get_width() << std::endl;
 				}
-				first = false;
 			}
 			int p = 0;
 			std::vector<uint32_t> outputs = (*it)->get_output_cycle();
@@ -71,6 +70,7 @@ void netlist::simulate(size_t cycles)
 			output_file << std::endl;
 			output_file.close();
 		}
+		first = false;
 	}
 	//store output for iteration
 	
