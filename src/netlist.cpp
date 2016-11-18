@@ -28,10 +28,21 @@ void netlist::simulate(size_t cycles)
 	bool first = true;
 	for(size_t i = 1; i <= cycles; i++)
 	{
+		/*
 		for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
 		{
 			if((*it)->get_visited() == false)
+			{
 				(*it)->evaluate();
+			}
+		}
+		*/
+		for(std::list<net *>::iterator it = nets_.begin(); it != nets_.end(); it++)
+		{
+			if((*it)->valid_signal() == false)
+			{
+				(*it)->get_driver()->evaluate();
+			}
 		}
 		set_nets_invalid();
 		//Store output gates
