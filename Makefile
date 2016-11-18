@@ -1,7 +1,7 @@
 #Compiler
 CXX  = g++
 
-CXXFLAGS = -g -Wall -O2 
+CXXFLAGS = -g -Wall 
 
 # Source files
 SRCS = ./src/main.cpp ./src/parser.cpp ./src/netlist.cpp ./src/net.cpp ./src/gate.cpp ./src/pin.cpp
@@ -41,8 +41,12 @@ tests: $(FILES)
 	@ ./myevl ./mytests/test3.evl
 	@ ./myevl ./mytests/test4.evl
 	@ ./myevl ./mytests/test5.evl
+
+cleanout:
+	@rm -f ./mytests/*.evl_output
  
 clean: 
-	@rm -f ./src/*.o ./myevl ./mytests/*.tokens ./mytests/*.syntax ./mytests/*.netlist
+	@rm -f ./src/*.o ./myevl ./mytests/*.tokens ./mytests/*.syntax ./mytests/*.netlist\
+		./mytests/*.evl_output
 	@rm -rf ./myevl.dSYM
 

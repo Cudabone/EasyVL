@@ -20,12 +20,12 @@ int main(int argc, char *argv[])
 	evl_wires_table wires_table;
 
 	make_wires_table(wires, wires_table);
-	netlist *nl = new netlist;
+	netlist *nl = new netlist(evl_file);
 	if(!nl->create(wires,comps,wires_table))
 		return -1;
 	if(!store_netlist_to_file(evl_file+".netlist",module,*nl))
 		return -1;
-	display_netlist(std::cout,module,*nl);
+	//display_netlist(std::cout,module,*nl);
 	nl->simulate(1000);
 	return 0;	
 	//Delete Netlist

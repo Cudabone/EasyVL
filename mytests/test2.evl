@@ -1,0 +1,7 @@
+module test2;
+wire a,b,clk;
+evl_dff(b,a,clk);
+not(a,b);
+evl_output atest2(b);
+evl_output btest2(a);
+endmodule

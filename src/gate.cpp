@@ -46,43 +46,7 @@ void gate::set_next_state()
 {
 	state_ = next_state_;
 }
-/*
-void gate::evaluate()
-{
-	std::vector<bool> inputs;
-	if(visited_ == false)
-	{
-		visited_ = true;
-		for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
-		{
-			std::vector<net *> pin_nets = (*pp)->get_nets();
-			if(type_ == "evl_dff")
-			{
-				if((*pp)->get_dir() == 'o')
-			}
-			if((*pp)->get_dir() == 'i')
-			{
-				for(std::vector<net *>::iterator np = pin_nets.begin(); np != pin_nets.end(); np++)
-				{
-					//if((*np)->get_signal() == '?')
-					if((*np)->get_driver()->get_visited() == false)
-					{
-						(*np)->get_driver()->evaluate();
-					}
-					inputs.push_back((*np)->get_signal());
-				}
-			}
-			else if((*pp)->get_dir() == 'o')
-			{
 
-			}
-		}
-		bool output = compute_output(inputs);
-		output_ = output;
-		set_out_nets();
-	}
-}
-*/
 void gate::evaluate()
 {
 	std::vector<bool> inputs;
@@ -95,11 +59,13 @@ void gate::evaluate()
 		net *clk_net = pins_[2]->get_nets()[0];
 		clk_net->set_valid_signal();
 		clk_net->set_logic_value(true);
+		/*
 		if(state_ == true)
 			std::cout << 1;
 		else
 			std::cout << 0;
 		std::cout << std::endl;
+		*/
 	}
 	for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
 	{
@@ -128,7 +94,7 @@ void gate::evaluate()
 		next_state_ = inputs[0];
 		state_ = next_state_;
 	}
-	else
+	else if(type_ != "evl_output")
 	{
 		bool output = compute_output(inputs);
 		set_out_nets(output);
@@ -143,13 +109,64 @@ bool gate::compute_output(const std::vector<bool> &inputs)
 		else
 			return false;
 	}
-	else if(type_ == "evl_output")
-	{
-
-	}
 	assert(false);
 	return false;
 }
+std::vector<uint32_t> gate::get_output_cycle()
+{
+	std::vector<uint32_t> outputs;
+	for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
+	{
+		std::vector<net *> pin_nets = (*pp)->get_nets();
+		int i = 0;
+		uint32_t num = 0;
+		for(std::vector<net *>::iterator np = pin_nets.begin(); np != pin_nets.end(); np++)
+		{
+			if((*np)->get_logic_value() == true)
+			{
+				num += ((unsigned int)1 << i);
+			}
+			i++;
+		}
+		outputs.push_back(num);
+	}
+	return outputs;
+}
+/*
+std::vector<std::string> gate::get_output_cycle()
+{
+	std::vector<std::string> outputs;
+	for(std::vector<pin *>::iterator pp = pins_.begin(); pp != pins_.end(); pp++)
+	{
+		std::vector<net *> pin_nets = (*pp)->get_nets();
+		std::ostringstream oss;
+		size_t len = pin_nets.size();
+		size_t rem = len % 4;
+		if(rem != 0)
+		{
+			for(int i = 0; i < rem; i++)
+				oss << "0";
+		}
+		int count = 0;
+		for(std::vector<net *>::iterator np = pin_nets.begin(); np != pin_nets.end(); np++)
+		{
+			count++;
+			if((*np)->get_logic_value() == true)
+			{
+				//write char 1
+				oss << "1";
+			}
+			else
+			{
+				//write char 0
+				oss << "0";
+			}
+		}
+		outputs.push_back(oss.str());
+	}
+	return outputs;
+}
+*/
 void gate::set_out_nets(bool output)
 {
 	std::vector<net *> out_nets = pins_[0]->get_nets();

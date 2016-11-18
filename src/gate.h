@@ -31,6 +31,7 @@ class gate
 	gate();
 	~gate();
 	int get_num_pins();
+	std::vector<uint32_t> get_output_cycle();
 	std::vector<pin *> get_pins();
 	std::string get_name();
 	std::string get_type();

@@ -1,0 +1,9 @@
+module test5;
+wire do1,do2,do3,di1,clk;
+evl_dff(do1,di1,clk);
+evl_dff(do2,do1,clk);
+evl_dff(do3,do2,clk)
+not(di1,do3);
+evl_output outdo3(do3);
+evl_output outdo2(do2); 
+endmodule

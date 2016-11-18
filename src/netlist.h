@@ -11,9 +11,10 @@ typedef std::map<std::string,net *> nets_table;
 class netlist 
 {
 	private:
+	std::string evl_file_;
 	std::list<gate *> gates_;
 	std::list<net *> nets_;
-	std::list<gate *> eval_list_;
+	std::list<gate *> out_gates_;
 	nets_table nets_table_;
 	evl_wires_table wires_table_;
 	int num_nets;
@@ -31,7 +32,7 @@ class netlist
 	void set_nets_invalid();
 
 	public:
-	netlist();
+	netlist(std::string evl_file);
 	~netlist();
 	void simulate(size_t cycles);
 	bool create(const evl_wires &wires, const evl_components &comps, const evl_wires_table &wires_table);

@@ -1,9 +1,13 @@
 #include "netlist.h"
 #include <sstream>
 #include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
 
-netlist::netlist()
+netlist::netlist(std::string evl_file)
 {
+	evl_file_ = evl_file;
 	num_nets = 0;
 	num_gates = 0;
 }
@@ -20,15 +24,8 @@ netlist::~netlist()
 void netlist::simulate(size_t cycles)
 {
 	sim_init();
-	/*
-	gate *g = *(gates_.begin());
-	std::vector<pin *> gate_pins = g->get_pins();
-	for(std::vector<pin *>::iterator pp = gate_pins.begin(); pp != gate_pins.end(); pp++)
-	{
-		std::vector<net *> pin_nets = (*pp)->
-		for(std::vector<net *>::iterator )
-	}
-	*/
+
+	bool first = true;
 	for(size_t i = 1; i <= cycles; i++)
 	{
 		for(std::list<gate *>::iterator it = gates_.begin(); it != gates_.end(); it++)
@@ -37,6 +34,42 @@ void netlist::simulate(size_t cycles)
 				(*it)->evaluate();
 		}
 		set_nets_invalid();
+		//Store output gates
+		for(std::list<gate *>::iterator it = out_gates_.begin(); it != out_gates_.end(); it++)
+		{
+			std::string name = (*it)->get_name();
+			std::ofstream output_file(evl_file_+"."+name+".evl_output", std::ios_base::app | std::ios_base::out);
+			if(!output_file)
+			{
+				std::cout << "Cant write evl_output file" << std::endl;
+			}
+			if(first)
+			{
+				output_file << (*it)->get_num_pins() << std::endl;
+				std::vector<pin *> pins = (*it)->get_pins();
+				for(std::vector<pin *>::iterator pp = pins.begin(); pp != pins.end(); pp++)
+				{
+					output_file << (*pp)->get_width() << std::endl;
+				}
+				first = false;
+			}
+			int p = 0;
+			std::vector<uint32_t> outputs = (*it)->get_output_cycle();
+			for(std::vector<uint32_t>::iterator sp = outputs.begin(); sp != outputs.end(); sp++)
+			{
+				int length = (*it)->get_pins()[p]->get_width();	
+				length = std::ceil((float)length/4.0); //number of hex digits
+				char buf[length+1];
+				snprintf(buf,length+1,"%x",(*sp));	
+				std::string str(buf);
+				output_file << str;
+				if(p != 0)
+					output_file << " ";
+				p++;
+			}
+			output_file << std::endl;
+			output_file.close();
+		}
 	}
 	//store output for iteration
 	
@@ -67,9 +100,12 @@ void netlist::sim_init()
 		(*it)->set_visited(false);
 		if((*it)->get_type() == "evl_dff")
 		{
-			eval_list_.push_back(*it);
 			(*it)->set_state(false);
 			(*it)->set_output((*it)->get_state());
+		}
+		else if((*it)->get_type() == "evl_output")
+		{
+			out_gates_.push_back(*it);
 		}
 	}
 }

@@ -2,5 +2,5 @@ module test1;
 wire a,b,clk;
 evl_dff(b,a,clk);
 not(a,b);
-evl_output output(b);
+evl_output btest1(b);
 endmodule
