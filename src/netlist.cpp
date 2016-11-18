@@ -38,7 +38,8 @@ void netlist::simulate(size_t cycles)
 		for(std::list<gate *>::iterator it = out_gates_.begin(); it != out_gates_.end(); it++)
 		{
 			std::string name = (*it)->get_name();
-			std::ofstream output_file(evl_file_+"."+name+".evl_output", std::ios::app);
+			std::string filename = evl_file_+"."+name+".evl_output";
+			std::ofstream output_file(filename.c_str(), std::ios::app);
 			if(!output_file)
 			{
 				std::cout << "Cant write evl_output file" << std::endl;
